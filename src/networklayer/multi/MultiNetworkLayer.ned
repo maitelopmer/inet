@@ -15,13 +15,18 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-package inet.nodes.inet;
+package inet.networklayer.multi;
 
+import inet.networklayer.contract.INetworkLayer;
+import inet.networklayer.generic.GenericNetworkLayer;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.nodes.ipv6.IPv6NetworkLayer;
 
 
 simple XXXMultiplexer
 {
+    parameters:
+        @display("i=block/fork");
     gates:
         input tcpIn @labels(TCPSegment,INetworkControlInfo/down);
         input udpIn @labels(UDPPacket,INetworkControlInfo/down);
@@ -43,6 +48,8 @@ simple XXXMultiplexer
 
 simple YYYMultiplexer
 {
+    parameters:
+        @display("i=block/fork");
     gates:
         input npIn[] @labels(INetworkDatagram);
         output npOut[] @labels(INetworkDatagram);
@@ -55,6 +62,8 @@ simple YYYMultiplexer
 //
 module MultiNetworkLayer like INetworkLayer
 {
+    parameters:
+        @display("i=block/fork");
     gates:
         input ifIn[] @labels(INetworkDatagram);
         input tcpIn @labels(TCPSegment,INetworkControlInfo/down);

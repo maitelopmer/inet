@@ -62,7 +62,7 @@ module NodeBase6
         }
 
         // network layer
-        networkLayer: NetworkLayer6 {
+        networkLayer: IPv6NetworkLayer {
             parameters:
                 @display("p=329,287;q=queue");
         }

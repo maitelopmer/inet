@@ -16,16 +16,19 @@
 
 package inet.networklayer.generic;
 
+import inet.networklayer.contract.IRoutingTable;
+
+
 //
 // TODO
 //
-simple GenericRoutingTable
+simple GenericRoutingTable like IRoutingTable
 {
     parameters:
+        @display("i=block/table");
         string routerId = default("auto"); // for routers, the router id using address dotted
                           // notation; specify "auto" to select the highest
                           // interface address; should be left empty ("") for hosts
         bool forwardingEnabled = default(true);  // turns IP forwarding on/off
         bool multicastForwardingEnabled = default(false); // turns multicast forwarding on/off
-        @display("i=block/table");
 }

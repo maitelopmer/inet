@@ -11,18 +11,18 @@
 //
 package inet.nodes.mpls;
 
-import inet.transport.IUDP;
-import inet.transport.ITCP;
-import inet.nodes.inet.NetworkLayer;
-import inet.networklayer.ted.TED;
-import inet.networklayer.ted.LinkStateRouting;
-import inet.networklayer.mpls.MPLS;
-import inet.networklayer.mpls.LIBTable;
-import inet.networklayer.ldp.LDP;
-import inet.networklayer.ipv4.IPv4RoutingTable;
-import inet.networklayer.common.InterfaceTable;
-import inet.linklayer.IWiredNic;
 import inet.base.NotificationBoard;
+import inet.linklayer.IWiredNic;
+import inet.networklayer.common.InterfaceTable;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
+import inet.networklayer.ipv4.IPv4RoutingTable;
+import inet.networklayer.ldp.LDP;
+import inet.networklayer.mpls.LIBTable;
+import inet.networklayer.mpls.MPLS;
+import inet.networklayer.ted.LinkStateRouting;
+import inet.networklayer.ted.TED;
+import inet.transport.ITCP;
+import inet.transport.IUDP;
 
 
 //
@@ -73,7 +73,7 @@ module LDP_LSR extends LDP_ROUTER_BASE
             parameters:
                 @display("p=267,145");
         }
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 @display("p=224,223");
             gates:

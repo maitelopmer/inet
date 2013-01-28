@@ -18,12 +18,12 @@
 
 package inet.examples.inet.routerperf;
 
-import inet.nodes.inet.NetworkLayer;
-import inet.networklayer.ipv4.IPv4RoutingTable;
-import inet.networklayer.common.InterfaceTable;
-import inet.linklayer.IWiredNic;
-import inet.base.NotificationBoard;
 import inet.applications.generic.IIPvXTrafficGenerator;
+import inet.base.NotificationBoard;
+import inet.linklayer.IWiredNic;
+import inet.networklayer.common.InterfaceTable;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
+import inet.networklayer.ipv4.IPv4RoutingTable;
 
 
 //
@@ -61,7 +61,7 @@ module BurstHost
             parameters:
                 @display("p=198,86");
         }
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 @display("p=198,173;q=queue");
             gates:

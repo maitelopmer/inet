@@ -36,8 +36,8 @@ import inet.networklayer.ipv6.IPv6ErrorHandling;
 module IPv6NetworkLayer
 {
     parameters:
-        bool xMIPv6Support = default(false);
         @display("i=block/fork");
+        bool xMIPv6Support = default(false);
     gates:
         input ifIn[] @labels(IPv6Datagram);
         output ifOut[] @labels(IPv6Datagram);

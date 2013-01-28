@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005 Andras Babos
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -15,25 +15,13 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-
-package inet.nodes.ospfv2;
-
-import inet.networklayer.ospfv2.OSPFRouting;
-import inet.nodes.inet.Router;
-
+package inet.networklayer.contract;
 
 //
-// An OSPFv2 router.
+// TODO:
 //
-module OSPFRouter extends Router
+moduleinterface IRoutingTable
 {
-    submodules:
-        ospf: OSPFRouting {
-            parameters:
-                @display("p=465,287,row");
-        }
-    connections allowunconnected:
-        ospf.ipOut --> networkLayer.ospfIn;
-        ospf.ipIn <-- networkLayer.ospfOut;
+    parameters:
+        @display("i=block/table");
 }
-

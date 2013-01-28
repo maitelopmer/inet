@@ -16,13 +16,10 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-package inet.nodes.inet;
+package inet.networklayer.ipv4;
 
-import inet.networklayer.ipv4.IPv4;
-import inet.networklayer.ipv4.IIGMP;
-import inet.networklayer.ipv4.ICMP;
-import inet.networklayer.ipv4.ErrorHandling;
 import inet.networklayer.arp.ARP;
+import inet.networklayer.contract.INetworkLayer;
 
 
 //

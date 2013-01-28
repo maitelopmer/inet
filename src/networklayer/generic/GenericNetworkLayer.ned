@@ -15,11 +15,10 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-package inet.nodes.inet;
+package inet.networklayer.generic;
 
 import inet.networklayer.arp.GlobalARP;
-import inet.networklayer.generic.GenericNetworkProtocol;
-import inet.networklayer.generic.EchoProtocol;
+import inet.networklayer.contract.INetworkLayer;
 
 
 //
