@@ -126,7 +126,7 @@ bool Address::isBroadcast() const
         case Address::IPv4:
             return ipv4.isLimitedBroadcastAddress();
         case Address::IPv6:
-            return false; // TODO: KLUDGE: ?
+            throw cRuntimeError("IPv6 isBroadcast() unimplemented");
         case Address::MAC:
             return mac.isBroadcast();
         case Address::MODULEID:
@@ -204,3 +204,4 @@ bool Address::matches(const Address& other, int prefixLength) const
             throw cRuntimeError("Unknown type");
     }
 }
+
