@@ -35,6 +35,11 @@ inline Address netmask(const Address &addrType, int prefixLength)
     return IPv4Address::makeNetmask(prefixLength); // XXX IPv4 only
 }
 
+inline Address unspecifiedAddress(const Address &addrType)
+{
+    return addrType.getType() == Address::IPv4 ? Address(IPv4Address::UNSPECIFIED_ADDRESS) : Address(IPv6Address::UNSPECIFIED_ADDRESS); // XXX
+}
+
 inline int prefixLength(const Address &netmask)
 {
     return netmask.getType() == Address::IPv4 ? netmask.toIPv4().getNetmaskLength() : 32; // XXX IPv4 only
@@ -418,7 +423,7 @@ void RIPRouting::sendRoutes(const Address &address, int port, InterfaceEntry *ie
         entry.addressFamilyId = RIP_AF_INET;
         entry.address = route->getDestination();
         entry.subnetMask = netmask(entry.address, route->getPrefixLength());
-        entry.nextHop = route->getNextHop();
+        entry.nextHop = unspecifiedAddress(allRipRoutersGroup); //route->getNextHop() if local ?
         entry.routeTag = ripRoute->tag;
         entry.metric = metric;
 
