@@ -186,7 +186,7 @@ class INET_API RIPRouting : public cSimpleModule, protected INotifiable
      * If the metric is infinite (16), then the route is invalidated.
      * It triggers an update, so neighbor routers are notified about the change.
      */
-    virtual void updateRoute(RIPRoute *route, const Address &nextHop, int metric, const Address &from);
+    virtual void updateRoute(RIPRoute *route, InterfaceEntry *ie, const Address &nextHop, int metric, const Address &from);
 
     /**
      * Sets the update timer to trigger an update in the [1s,5s] interval.

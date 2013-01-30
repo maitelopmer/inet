@@ -493,7 +493,7 @@ void RIPRouting::processResponse(RIPPacket *packet)
             if (ripRoute->from == from)
                 ripRoute->expiryTime = simTime() + RIP_ROUTE_EXPIRY_TIME;
             if ((ripRoute->from == from && ripRoute->metric != metric) || metric < ripRoute->metric)
-                updateRoute(ripRoute, nextHop, metric, from);
+                updateRoute(ripRoute, incomingIe->ie, nextHop, metric, from);
         }
         else
         {
@@ -613,10 +613,11 @@ void RIPRouting::addRoute(const Address &dest, const Address &subnetMask, Interf
  *  - If the new metric is infinity, start the deletion process
  *    (described above); otherwise, re-initialize the timeout
  */
-void RIPRouting::updateRoute(RIPRoute *ripRoute, const Address &nextHop, int metric, const Address &from)
+void RIPRouting::updateRoute(RIPRoute *ripRoute, InterfaceEntry *ie, const Address &nextHop, int metric, const Address &from)
 {
     if (ripRoute->route)
     {
+        ripRoute->route->setInterface(ie);
         ripRoute->route->setNextHop(nextHop);
         ripRoute->route->setMetric(metric);
     }
