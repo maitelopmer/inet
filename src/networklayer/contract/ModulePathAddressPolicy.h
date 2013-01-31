@@ -34,6 +34,7 @@ class INET_API ModulePathAddressPolicy : public IAddressPolicy
         virtual ~ModulePathAddressPolicy() { }
 
         virtual Address getLinkLocalManetRoutersMulticastAddress() const { return ModulePathAddress(-109); } // TODO: constant
+        virtual Address getLinkLocalRIPRoutersMulticastAddress() const { return ModulePathAddress(-9); } // TODO: constant
         virtual INetworkProtocolControlInfo * createNetworkProtocolControlInfo() const { return new GenericNetworkProtocolControlInfo(); }
         virtual void joinMulticastGroup(InterfaceEntry * interfaceEntry, const Address & address) const { interfaceEntry->getGenericNetworkProtocolData()->joinMulticastGroup(address); }
 };

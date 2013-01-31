@@ -28,12 +28,14 @@ class INET_API IPv4AddressPolicy : public IAddressPolicy
 {
     public:
         static IPv4AddressPolicy INSTANCE;
+        static const IPv4Address ALL_RIP_ROUTERS_MCAST;
 
     public:
         IPv4AddressPolicy() { }
         virtual ~IPv4AddressPolicy() { }
 
         virtual Address getLinkLocalManetRoutersMulticastAddress() const { return IPv4Address::LL_MANET_ROUTERS; }
+        virtual Address getLinkLocalRIPRoutersMulticastAddress() const { return ALL_RIP_ROUTERS_MCAST; }
         virtual INetworkProtocolControlInfo * createNetworkProtocolControlInfo() const { return new IPv4ControlInfo(); }
         virtual void joinMulticastGroup(InterfaceEntry * interfaceEntry, const Address & address) const { interfaceEntry->ipv4Data()->joinMulticastGroup(address.toIPv4()); }
 };

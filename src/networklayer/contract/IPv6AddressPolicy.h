@@ -28,12 +28,14 @@ class INET_API IPv6AddressPolicy : public IAddressPolicy
 {
     public:
         static IPv6AddressPolicy INSTANCE;
+        static const IPv6Address ALL_RIP_ROUTERS_MCAST;
 
     public:
         IPv6AddressPolicy() { }
         virtual ~IPv6AddressPolicy() { }
 
         virtual Address getLinkLocalManetRoutersMulticastAddress() const { return IPv6Address::LL_MANET_ROUTERS; }
+        virtual Address getLinkLocalRIPRoutersMulticastAddress() const { return ALL_RIP_ROUTERS_MCAST; };
         virtual INetworkProtocolControlInfo * createNetworkProtocolControlInfo() const { return new IPv6ControlInfo(); }
         virtual void joinMulticastGroup(InterfaceEntry * interfaceEntry, const Address & address) const { } // TODO:
 };

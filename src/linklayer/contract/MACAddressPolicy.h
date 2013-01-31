@@ -34,6 +34,7 @@ class INET_API MACAddressPolicy : public IAddressPolicy
         virtual ~MACAddressPolicy() { }
 
         virtual Address getLinkLocalManetRoutersMulticastAddress() const { return MACAddress(-109); } // TODO: constant
+        virtual Address getLinkLocalRIPRoutersMulticastAddress() const { return MACAddress(-9); } // TODO: constant
         virtual INetworkProtocolControlInfo * createNetworkProtocolControlInfo() const { return new GenericNetworkProtocolControlInfo(); }
         virtual void joinMulticastGroup(InterfaceEntry * interfaceEntry, const Address & address) const { interfaceEntry->getGenericNetworkProtocolData()->joinMulticastGroup(address); }
 };

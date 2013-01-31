@@ -18,3 +18,5 @@
 #include "IPv6AddressPolicy.h"
 
 IPv6AddressPolicy IPv6AddressPolicy::INSTANCE;
+
+const IPv6Address IPv6AddressPolicy::ALL_RIP_ROUTERS_MCAST("FF02::9");
