@@ -29,7 +29,7 @@ class IRoutingTable;
 /**
  * TODO
  */
-class INET_API GenericRoute : public cObject, public IRoute
+class INET_API GenericRoute : public IRoute
 {
     private:
         IRoutingTable *owner;

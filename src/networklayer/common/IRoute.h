@@ -31,7 +31,7 @@ class IRoutingTable;
  * @see IRoutingTable, IPv4Route, IPv6Route
  */
 //TODO the "Generic" can be dropped from the name, once IRoutingTable is renamed to IPv4RoutingTable
-class INET_API IRoute
+class INET_API IRoute : public cObject
 {
     public:
 //TODO maybe:
@@ -117,7 +117,7 @@ inline std::ostream& operator<<(std::ostream& out, const IRoute * route)
  */
 //TODO the "Generic" can be dropped from the name, once IRoutingTable is renamed to IPv4RoutingTable
 //TODO decide whether IPv4Route should implement this or rather have a wrapper?
-class INET_API IMulticastRoute
+class INET_API IMulticastRoute : public cObject
 {
   public:
 //TODO maybe:

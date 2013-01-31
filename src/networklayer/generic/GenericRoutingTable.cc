@@ -332,7 +332,7 @@ void GenericRoutingTable::addRoute(IRoute* route)
 
     updateDisplayString();
 
-    nb->fireChangeNotification(NF_GENERIC_ROUTE_ADDED, entry);
+    nb->fireChangeNotification(NF_ROUTE_ADDED, entry);
 }
 
 IRoute* GenericRoutingTable::removeRoute(IRoute* route)
@@ -347,7 +347,7 @@ IRoute* GenericRoutingTable::removeRoute(IRoute* route)
         routes.erase(i);
         updateDisplayString();
         ASSERT(entry->getRoutingTable() == this); // still filled in, for the listeners' benefit
-        nb->fireChangeNotification(NF_GENERIC_ROUTE_DELETED, entry);
+        nb->fireChangeNotification(NF_ROUTE_DELETED, entry);
         entry->setRoutingTable(NULL);
         return entry;
     }
