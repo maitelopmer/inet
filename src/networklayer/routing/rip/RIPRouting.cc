@@ -146,21 +146,8 @@ void RIPRouting::initialize(int stage)
         nb->subscribe(this, NF_INTERFACE_CREATED);
         nb->subscribe(this, NF_INTERFACE_DELETED);
         nb->subscribe(this, NF_INTERFACE_STATE_CHANGED);
-        if (rt->getRouterId().getType() == Address::IPv4) // XXX generalize the events
-        {
-            nb->subscribe(this, NF_IPv4_ROUTE_DELETED);
-            nb->subscribe(this, NF_IPv4_ROUTE_ADDED);
-        }
-        else if (rt->getRouterId().getType() == Address::IPv6)
-        {
-            nb->subscribe(this, NF_IPv6_ROUTE_DELETED);
-            nb->subscribe(this, NF_IPv6_ROUTE_ADDED);
-        }
-        else
-        {
-            nb->subscribe(this, NF_GENERIC_ROUTE_DELETED);
-            nb->subscribe(this, NF_GENERIC_ROUTE_ADDED);
-        }
+        nb->subscribe(this, NF_ROUTE_DELETED);
+        nb->subscribe(this, NF_ROUTE_ADDED);
 
         sendInitialRequests();
 
@@ -214,22 +201,14 @@ void RIPRouting::receiveChangeNotification(int category, const cObject *details)
             if (ie->isDown())
                 invalidateRoutes(ie);
             break;
-        case NF_IPv4_ROUTE_DELETED:
-        case NF_IPv6_ROUTE_DELETED:
-        case NF_GENERIC_ROUTE_DELETED:
+        case NF_ROUTE_DELETED:
             // remove references to the deleted route and invalidate the RIP route
-            route = category == NF_IPv4_ROUTE_DELETED ? check_and_cast<IPv4Route*>(details)->asGeneric() :
-                    category == NF_IPv6_ROUTE_DELETED ? check_and_cast<IPv6Route*>(details)->asGeneric() :
-                    check_and_cast<IRoute*>(details);
+            route = check_and_cast<IRoute*>(details);
             deleteRoute(route);
             break;
-        case NF_IPv4_ROUTE_ADDED:
-        case NF_IPv6_ROUTE_ADDED:
-        case NF_GENERIC_ROUTE_ADDED:
+        case NF_ROUTE_ADDED:
             // add or update the RIP route
-            route = category == NF_IPv4_ROUTE_ADDED ? check_and_cast<IPv4Route*>(details)->asGeneric() :
-                    category == NF_IPv6_ROUTE_ADDED ? check_and_cast<IPv6Route*>(details)->asGeneric() :
-                    check_and_cast<IRoute*>(details);
+            route = check_and_cast<IRoute*>(details);
             if (isLoopbackInterfaceRoute(route))
                 /*ignore*/;
             else if (isLocalInterfaceRoute(route))
