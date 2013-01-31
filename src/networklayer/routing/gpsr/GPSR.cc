@@ -138,11 +138,14 @@ void GPSR::scheduleBeaconTimer() {
 
 void GPSR::processBeaconTimer() {
     GPSR_EV << "Processing beacon timer" << endl;
-    sendBeaconTimer(createBeaconTimer(), uniform(0, maxJitter).dbl());
+    Address selfAddress = getSelfAddress();
+    if (!selfAddress.isUnspecified()) {
+        sendBeacon(createBeacon(), uniform(0, maxJitter).dbl());
+        // KLUDGE: implement position registry protocol
+        globalPositionTable.setPosition(selfAddress, mobility->getCurrentPosition());
+    }
     scheduleBeaconTimer();
     schedulePurgeNeighborsTimer();
-    // KLUDGE: implement position registry protocol
-    globalPositionTable.setPosition(getSelfAddress(), mobility->getCurrentPosition());
 }
 
 //
@@ -188,7 +191,7 @@ void GPSR::sendUDPPacket(UDPPacket * packet, double delay) {
 void GPSR::processUDPPacket(UDPPacket * packet) {
     cPacket * encapsulatedPacket = packet->decapsulate();
     if (dynamic_cast<GPSRBeacon *>(encapsulatedPacket))
-        processBeaconTimer((GPSRBeacon *)encapsulatedPacket);
+        processBeacon((GPSRBeacon *)encapsulatedPacket);
     else
         throw cRuntimeError("Unknown UDP packet");
     delete packet;
@@ -198,15 +201,15 @@ void GPSR::processUDPPacket(UDPPacket * packet) {
 // handling beacons
 //
 
-GPSRBeacon * GPSR::createBeaconTimer() {
+GPSRBeacon * GPSR::createBeacon() {
     GPSRBeacon * beacon = new GPSRBeacon();
     beacon->setAddress(getSelfAddress());
     beacon->setPosition(mobility->getCurrentPosition());
     return beacon;
 }
 
-void GPSR::sendBeaconTimer(GPSRBeacon * beacon, double delay) {
-    GPSR_EV << "Sending beacon packet: address = " << beacon->getAddress() << " position = " << beacon->getPosition() << endl;
+void GPSR::sendBeacon(GPSRBeacon * beacon, double delay) {
+    GPSR_EV << "Sending beacon: address = " << beacon->getAddress() << ", position = " << beacon->getPosition() << endl;
     INetworkProtocolControlInfo * networkProtocolControlInfo = addressPolicy->createNetworkProtocolControlInfo();
     networkProtocolControlInfo->setProtocol(IP_PROT_MANET);
     networkProtocolControlInfo->setHopLimit(255);
@@ -220,8 +223,8 @@ void GPSR::sendBeaconTimer(GPSRBeacon * beacon, double delay) {
     sendUDPPacket(udpPacket, delay);
 }
 
-void GPSR::processBeaconTimer(GPSRBeacon * beacon) {
-    GPSR_EV << "Processing beacon packet: address = " << beacon->getAddress() << " position = " << beacon->getPosition() << endl;
+void GPSR::processBeacon(GPSRBeacon * beacon) {
+    GPSR_EV << "Processing beacon: address = " << beacon->getAddress() << ", position = " << beacon->getPosition() << endl;
     neighborPositionTable.setPosition(beacon->getAddress(), beacon->getPosition());
     delete beacon;
 }
@@ -308,6 +311,7 @@ double GPSR::getNeighborAngle(const Address & address) {
 //
 
 std::string GPSR::getHostName() {
+    // TODO: this is fragile
     return getParentModule()->getFullName();
 }
 

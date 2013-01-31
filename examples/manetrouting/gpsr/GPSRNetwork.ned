@@ -6,7 +6,7 @@ package inet.examples.manetrouting.gpsr;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.networklayer.routing.gpsr.GPSR;
+import inet.networklayer.routing.gpsr.IGPSR;
 import inet.nodes.inet.WirelessHost;
 import inet.world.radio.ChannelControl;
 
@@ -20,8 +20,9 @@ module AdhocHost extends WirelessHost
         @display("i=device/cellphone");
         IPForward = true;
         wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");
+        string gpsrType = default("GPSR");
     submodules:
-        gpsr: GPSR {
+        gpsr: <gpsrType> like IGPSR {
             @display("p=527,287");
         }
     connections:

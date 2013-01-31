@@ -34,6 +34,7 @@ Coord PositionTable::getPosition(const Address & address) const {
 }
 
 void PositionTable::setPosition(const Address & address, const Coord & coord) {
+    ASSERT(!address.isUnspecified());
     addressToPositionMap[address] = AddressToPositionMapValue(simTime(), coord);
 }
 

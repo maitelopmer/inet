@@ -90,9 +90,9 @@ class INET_API GPSR : public cSimpleModule, public INotifiable, public INetfilte
         void processUDPPacket(UDPPacket * packet);
 
         // handling beacons
-        GPSRBeacon * createBeaconTimer();
-        void sendBeaconTimer(GPSRBeacon * beacon, double delay);
-        void processBeaconTimer(GPSRBeacon * beacon);
+        GPSRBeacon * createBeacon();
+        void sendBeacon(GPSRBeacon * beacon, double delay);
+        void processBeacon(GPSRBeacon * beacon);
 
         // handling packets
         GPSRPacket * createPacket(Address destination, cPacket * content);
