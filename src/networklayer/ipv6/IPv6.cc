@@ -49,7 +49,7 @@ void IPv6::initialize()
     QueueBase::initialize();
 
     ift = InterfaceTableAccess().get();
-    rt = RoutingTable6Access().get();
+    rt = check_and_cast<IPv6RoutingTable *>(findModuleWhereverInNode(par("routingTableModuleName"), this));
     nd = IPv6NeighbourDiscoveryAccess().get();
     icmp = ICMPv6Access().get();
 

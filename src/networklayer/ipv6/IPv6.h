@@ -20,6 +20,7 @@
 #define __IPv6_H__
 
 #include "INETDefs.h"
+#include "INetfilter.h"
 
 #include "QueueBase.h"
 #include "IPv6RoutingTable.h"
@@ -37,7 +38,7 @@ class ICMPv6Message;
 /**
  * IPv6 implementation.
  */
-class INET_API IPv6 : public QueueBase
+class INET_API IPv6 : public QueueBase, public INetfilter
 {
   protected:
     IInterfaceTable *ift;
@@ -139,6 +140,12 @@ class INET_API IPv6 : public QueueBase
 
   public:
     IPv6() {}
+
+    // TODO:
+    virtual void registerHook(int priority, IHook * hook) { }
+    virtual void unregisterHook(int priority, IHook * hook) { }
+    virtual void dropQueuedDatagram(const INetworkDatagram * daragram) { }
+    virtual void reinjectQueuedDatagram(const INetworkDatagram * datagram) { }
 
   protected:
     /**

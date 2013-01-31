@@ -22,7 +22,6 @@ import inet.networklayer.generic.GenericRoutingTable;
 import inet.networklayer.ipv4.IPv4RoutingTable;
 import inet.networklayer.ipv6.IPv6RoutingTable;
 
-
 //
 // TODO
 //
@@ -30,8 +29,19 @@ module MultiRoutingTable like IRoutingTable
 {
     parameters:
         @display("i=block/table");
+        bool enableIPv4 = default(true);
+        bool enableIPv6 = default(true);
+        bool enableGeneric = default(true);
+
     submodules:
-        ipv4: IPv4RoutingTable;
-        ipv6: IPv6RoutingTable;
-        gn: GenericRoutingTable;
+        // TODO: simplify names to ipv4, ipv6, generic once looking up modules support paths
+        ipv4RoutingTable: IPv4RoutingTable if enableIPv4 {
+            @display("p=100,50;is=s");
+        }
+        ipv6RoutingTable: IPv6RoutingTable if enableIPv6 {
+            @display("p=100,100;is=s");
+        }
+        genericRoutingTable: GenericRoutingTable if enableGeneric {
+            @display("p=100,150;is=s");
+        }
 }

@@ -41,7 +41,7 @@ void IPv4::initialize()
     QueueBase::initialize();
 
     ift = InterfaceTableAccess().get();
-    rt = IPv4RoutingTableAccess().get();
+    rt = check_and_cast<IIPv4RoutingTable *>(findModuleWhereverInNode(par("routingTableModuleName"), this));
 
     queueOutGate = gate("queueOut");
 

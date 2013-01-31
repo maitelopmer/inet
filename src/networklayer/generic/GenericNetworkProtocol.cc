@@ -30,7 +30,7 @@ void GenericNetworkProtocol::initialize()
     QueueBase::initialize();
 
     ift = InterfaceTableAccess().get();
-    rt = check_and_cast<GenericRoutingTable *>(findModuleWhereverInNode("routingTable", this));
+    rt = check_and_cast<GenericRoutingTable *>(findModuleWhereverInNode(par("routingTableModuleName"), this));
 
     queueOutGate = gate("queueOut");
 

@@ -34,6 +34,7 @@ class IIPv4RoutingTable;
 class IPv6RoutingTable;
 class NotificationBoard;
 
+#define DEFAULT_ADDR_TYPE (ADDR_IPv4 | ADDR_IPv6 | ADDR_MAC | ADDR_MODULEPATH | ADDR_MODULEID)
 
 /**
  * Utility class for finding IPv4 or IPv6 address of a host or router.
@@ -50,7 +51,6 @@ class NotificationBoard;
  *    - routerId: "router1%routerId", "R1%routerId"
  *    - interface of a host or router toward defined another node: "client1>router"
  */
-// TODO: rename to AddressResolver and generalize to work with all kind of addresses
 class INET_API AddressResolver
 {
   protected:
@@ -59,27 +59,35 @@ class INET_API AddressResolver
     // internal
     virtual bool getIPv6AddressFrom(Address &retAddr, IInterfaceTable *ift, bool netmask);
     // internal
+    virtual bool getMACAddressFrom(Address &retAddr, IInterfaceTable *ift, bool netmask);
+    // internal
+    virtual bool getModulePathAddressFrom(Address &retAddr, IInterfaceTable *ift, bool netmask);
+    // internal
+    virtual bool getModuleIdAddressFrom(Address &retAddr, IInterfaceTable *ift, bool netmask);
+    // internal
     virtual bool getInterfaceIPv4Address(Address &ret, InterfaceEntry *ie, bool mask);
     // internal
     virtual bool getInterfaceIPv6Address(Address &ret, InterfaceEntry *ie, bool mask);
+    // internal
+    virtual bool getInterfaceMACAddress(Address &ret, InterfaceEntry *ie, bool mask);
+    // internal
+    virtual bool getInterfaceModulePathAddress(Address &ret, InterfaceEntry *ie, bool mask);
+    // internal
+    virtual bool getInterfaceModuleIdAddress(Address &ret, InterfaceEntry *ie, bool mask);
 
   public:
     enum {
         ADDR_IPv4 = 1,
         ADDR_IPv6 = 2,
-        ADDR_MODULEID = 4,
+        ADDR_MAC = 4,
         ADDR_MODULEPATH = 8,
-        ADDR_PREFER = 16,
+        ADDR_MODULEID = 16,
         ADDR_MASK = 32
-    };
-    enum {
-        ADDR_PREFER_IPv4 = ADDR_IPv4 | ADDR_PREFER,
-        ADDR_PREFER_IPv6 = ADDR_IPv6 | ADDR_PREFER
     };
 
   public:
-    AddressResolver() {}
-    virtual ~AddressResolver() {}
+    AddressResolver() { }
+    virtual ~AddressResolver() { }
 
     /**
      * Accepts dotted decimal notation ("127.0.0.1"), module name of the host
@@ -88,14 +96,14 @@ class INET_API AddressResolver
      * looked up using <tt>simulation.getModuleByPath()</tt>, and then
      * addressOf() will be called to determine its IP address.
      */
-    virtual Address resolve(const char *str, int addrType = ADDR_PREFER_IPv6);
+    virtual Address resolve(const char *str, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Utility function: Calls resolve() for each item in the string vector, and
      * returns the result in an address vector. The string vector may come e.g.
      * from cStringTokenizer::asVector().
      */
-    virtual std::vector<Address> resolve(std::vector<std::string> strs, int addrType = ADDR_PREFER_IPv6);
+    virtual std::vector<Address> resolve(std::vector<std::string> strs, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Similar to resolve(), but returns false (instead of throwing an error)
@@ -103,7 +111,7 @@ class INET_API AddressResolver
      * doesn't have an address assigned yet. (It still throws an error
      * on any other error condition).
      */
-    virtual bool tryResolve(const char *str, Address& result, int addrType = ADDR_PREFER_IPv6);
+    virtual bool tryResolve(const char *str, Address& result, int addrType = DEFAULT_ADDR_TYPE);
 
     /** @name Utility functions supporting resolve() */
     //@{
@@ -113,12 +121,12 @@ class INET_API AddressResolver
      * This function uses routingTableOf() to find the IIPv4RoutingTable module,
      * then invokes getAddressFrom() to extract the IP address.
      */
-    virtual Address addressOf(cModule *host, int addrType = ADDR_PREFER_IPv6);
+    virtual Address addressOf(cModule *host, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Similar to addressOf(), but only looks at the given interface
      */
-    virtual Address addressOf(cModule *host, const char *ifname, int addrType = ADDR_PREFER_IPv6);
+    virtual Address addressOf(cModule *host, const char *ifname, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Returns IPv4 or IPv6 address of the given host or router.
@@ -126,7 +134,7 @@ class INET_API AddressResolver
      * This function find an interface of host connected to destmod
      * then invokes getAddressFrom() to extract the IP address.
      */
-    virtual Address addressOf(cModule *host, cModule *destmod, int addrType = ADDR_PREFER_IPv6);
+    virtual Address addressOf(cModule *host, cModule *destmod, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Returns the router Id of the given router. Router Id is obtained from
@@ -138,12 +146,12 @@ class INET_API AddressResolver
      * Returns the IPv4 or IPv6 address of the given host or router, given its IInterfaceTable
      * module. For IPv4, the first usable interface address is chosen.
      */
-    virtual Address getAddressFrom(IInterfaceTable *ift, int addrType = ADDR_PREFER_IPv6);
+    virtual Address getAddressFrom(IInterfaceTable *ift, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * Returns the IPv4 or IPv6 address of the given interface (of a host or router).
      */
-    virtual Address getAddressFrom(InterfaceEntry *ie, int addrType = ADDR_PREFER_IPv6);
+    virtual Address getAddressFrom(InterfaceEntry *ie, int addrType = DEFAULT_ADDR_TYPE);
 
     /**
      * The function tries to look up the IInterfaceTable module as submodule

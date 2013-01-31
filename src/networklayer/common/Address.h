@@ -39,8 +39,8 @@ class INET_API Address
             IPv4,
             IPv6,
             MAC,
-            MODULEID,
-            MODULEPATH
+            MODULEPATH,
+            MODULEID
         };
     private:
         AddressType type;

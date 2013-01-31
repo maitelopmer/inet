@@ -41,6 +41,7 @@ class INET_API GenericRoutingTable : public cSimpleModule, public IRoutingTable,
         NotificationBoard *nb; // cached pointer
 
         Address routerId;
+        Address::AddressType addressType; // TODO: create separate routing tables for all kind of addresses
         bool forwardingEnabled;
         bool multicastForwardingEnabled;
 

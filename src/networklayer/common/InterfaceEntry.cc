@@ -66,6 +66,7 @@ InterfaceEntry::InterfaceEntry(cModule* ifmod)
 
     ipv4data = NULL;
     ipv6data = NULL;
+    genericNetworkProtocolData = NULL;
     protocol3data = NULL;
     protocol4data = NULL;
     estimateCostProcessArray.clear();

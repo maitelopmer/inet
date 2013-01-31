@@ -26,13 +26,11 @@
 #include "IAddressPolicy.h"
 #include "INetfilter.h"
 #include "IRoutingTable.h"
+#include "NotificationBoard.h"
 #include "UDPPacket.h"
 #include "DYMOdefs.h"
 #include "DYMORouteData.h"
 #include "DYMO_m.h"
-
-// KLUDGE: kill this when IPv4RoutingTable implements IRoutingTable
-#include "IPv4RoutingTable.h"
 
 DYMO_NAMESPACE_BEGIN
 

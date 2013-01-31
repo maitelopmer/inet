@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013 Andras Varga
+// Copyright (C) 2004 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -15,24 +15,19 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __INET_IADDRESSPOLICY_H
-#define __INET_IADDRESSPOLICY_H
+#ifndef __INET_NETWORKDATAGRAMMULTIPLEXER_H_
+#define __INET_NETWORKDATAGRAMMULTIPLEXER_H_
 
 #include "INETDefs.h"
-#include "Address.h"
-#include "InterfaceEntry.h"
-#include "INetworkProtocolControlInfo.h"
 
-// TODO: rename to AddressType?
-class INET_API IAddressPolicy
-{
-    public:
-        IAddressPolicy() { }
-        virtual ~IAddressPolicy() { }
+class NetworkDatagramMultiplexer : public cSimpleModule {
+  public:
+    NetworkDatagramMultiplexer() { }
+    virtual ~NetworkDatagramMultiplexer() { }
 
-        virtual Address getLinkLocalManetRoutersMulticastAddress() const = 0;
-        virtual void joinMulticastGroup(InterfaceEntry * interfaceEntry, const Address & address) const = 0; // TODO: move to interface entry?
-        virtual INetworkProtocolControlInfo * createNetworkProtocolControlInfo() const = 0; // TODO: move, where?
+  protected:
+    virtual void handleMessage(cMessage * message);
+    int getProtocolIndex(cMessage * message);
 };
 
 #endif

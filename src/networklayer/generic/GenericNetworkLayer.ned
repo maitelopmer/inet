@@ -49,7 +49,7 @@ module GenericNetworkLayer like INetworkLayer
         output igmpOut;
 
     submodules:
-        np: GenericNetworkProtocol {
+        gnp: GenericNetworkProtocol {
             parameters:
                 protocolMapping = "6:0,17:1,1:2,2:3,46:4,89:5,132:6,48:7,138:7"; // see: http://www.iana.org/assignments/protocol-numbers
                 @display("p=85,95;q=queue");
@@ -70,26 +70,26 @@ module GenericNetworkLayer like INetworkLayer
         }
     connections allowunconnected:
         // transport Layer
-        np.transportOut[0] --> { @display("m=n"); } --> tcpOut;
-        np.transportIn[0] <-- { @display("m=n"); } <-- tcpIn;
+        gnp.transportOut[0] --> { @display("m=n"); } --> tcpOut;
+        gnp.transportIn[0] <-- { @display("m=n"); } <-- tcpIn;
 
-        np.transportOut[1] --> { @display("m=n"); } --> udpOut;
-        np.transportIn[1] <-- { @display("m=n"); } <-- udpIn;
+        gnp.transportOut[1] --> { @display("m=n"); } --> udpOut;
+        gnp.transportIn[1] <-- { @display("m=n"); } <-- udpIn;
 
-        np.transportOut[2] --> echo.localIn;
-        np.transportIn[2] <-- echo.sendOut;
+        gnp.transportOut[2] --> echo.localIn;
+        gnp.transportIn[2] <-- echo.sendOut;
 
-        np.transportOut[4] --> { @display("m=n"); } --> rsvpOut;
-        np.transportIn[4] <-- { @display("m=n"); } <-- rsvpIn;
+        gnp.transportOut[4] --> { @display("m=n"); } --> rsvpOut;
+        gnp.transportIn[4] <-- { @display("m=n"); } <-- rsvpIn;
 
-        np.transportOut[5] --> { @display("m=n"); } --> ospfOut;
-        np.transportIn[5] <-- { @display("m=n"); } <-- ospfIn;
+        gnp.transportOut[5] --> { @display("m=n"); } --> ospfOut;
+        gnp.transportIn[5] <-- { @display("m=n"); } <-- ospfIn;
 
-        np.transportOut[6] --> { @display("m=n"); } --> sctpOut;
-        np.transportIn[6] <-- { @display("m=n"); } <-- sctpIn;
+        gnp.transportOut[6] --> { @display("m=n"); } --> sctpOut;
+        gnp.transportIn[6] <-- { @display("m=n"); } <-- sctpIn;
 
-        np.transportOut[7] --> { @display("m=n"); } --> manetOut;
-        np.transportIn[7] <-- { @display("m=n"); } <-- manetIn;
+        gnp.transportOut[7] --> { @display("m=n"); } --> manetOut;
+        gnp.transportIn[7] <-- { @display("m=n"); } <-- manetIn;
 
         for i=0..sizeof(pingOut)-1 {
             echo.pingOut++ --> { @display("m=n"); } --> pingOut[i];
@@ -98,10 +98,10 @@ module GenericNetworkLayer like INetworkLayer
             echo.pingIn++ <-- { @display("m=n"); } <-- pingIn[i];
         }
 
-        np.queueOut --> arp.ipIn;
+        gnp.queueOut --> arp.ipIn;
 
         for i=0..sizeof(ifIn)-1 {
-            ifIn[i] --> { @display("m=s"); } --> np.queueIn[i];
+            ifIn[i] --> { @display("m=s"); } --> gnp.queueIn[i];
         }
         for i=0..sizeof(ifOut)-1 {
             arp.nicOut[i] --> { @display("m=s"); } --> ifOut[i];

@@ -52,6 +52,15 @@ void GenericRoutingTable::initialize(int stage)
         nb = NotificationBoardAccess().get();
         ift = InterfaceTableAccess().get();
 
+        const char * addressTypeString = par("addressType");
+        if (!strcmp(addressTypeString, "mac"))
+            addressType = Address::MAC;
+        else if (!strcmp(addressTypeString, "modulepath"))
+            addressType = Address::MODULEPATH;
+        else if (!strcmp(addressTypeString, "moduleid"))
+            addressType = Address::MODULEID;
+        else
+            throw cRuntimeError("Unknown address type");
         forwardingEnabled = par("forwardingEnabled").boolValue();
         multicastForwardingEnabled = par("multicastForwardingEnabled");
 
@@ -127,8 +136,11 @@ void GenericRoutingTable::configureRouterId()
             for (int i=0; i<ift->getNumInterfaces(); ++i)
             {
                 InterfaceEntry *ie = ift->getInterface(i);
-                if (!ie->isLoopback() && routerId < ie->getGenericNetworkProtocolData()->getAddress())
-                    routerId = ie->getGenericNetworkProtocolData()->getAddress();
+                if (!ie->isLoopback()) {
+                    Address interfaceAddr = ie->getGenericNetworkProtocolData()->getAddress();
+                    if (routerId.isUnspecified() || routerId < interfaceAddr)
+                        routerId = interfaceAddr;
+                }
             }
         }
     }
@@ -146,16 +158,18 @@ void GenericRoutingTable::configureRouterId()
 
 void GenericRoutingTable::configureInterface(InterfaceEntry *ie)
 {
+    int metric = (int) (ceil(2e9 / ie->getDatarate()));  // use OSPF cost as default
+    int interfaceModuleId = ie->getInterfaceModule() ? ie->getInterfaceModule()->getParentModule()->getId() : -1;
+    // mac
     GenericNetworkProtocolInterfaceData *d = new GenericNetworkProtocolInterfaceData();
-    if (ie->getInterfaceModule())
-        // TODO: which one and why? should we store all so that we can use each one of  them
-        //d->setAddress(ie->getMacAddress());
-        //d->setAddress(ModuleIdAddress(ie->getInterfaceModule()->getParentModule()->getId()));
-        d->setAddress(ModulePathAddress(ie->getInterfaceModule()->getParentModule()->getId()));
+    d->setMetric(metric);
+    if (addressType == Address::MAC)
+        d->setAddress(ie->getMacAddress());
+    else if (ie->getInterfaceModule() && addressType == Address::MODULEPATH)
+        d->setAddress(ModulePathAddress(interfaceModuleId));
+    else if (ie->getInterfaceModule() && addressType == Address::MODULEID)
+        d->setAddress(ModuleIdAddress(interfaceModuleId));
     ie->setGenericNetworkProtocolData(d);
-
-    // metric: some hints: OSPF cost (2e9/bps value), MS KB article Q299540, ...
-    d->setMetric((int)ceil(2e9/ie->getDatarate())); // use OSPF cost as default
 }
 
 void GenericRoutingTable::configureLoopback()

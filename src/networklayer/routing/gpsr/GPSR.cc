@@ -20,6 +20,9 @@
 #include "NotificationBoard.h"
 #include "InterfaceTableAccess.h"
 #include "IPProtocolId_m.h"
+// KLUDGE:
+#include "IPv4RoutingTable.h"
+#include "IPv6RoutingTable.h"
 
 Define_Module(GPSR);
 
@@ -68,7 +71,10 @@ void GPSR::initialize(int stage) {
         interfaceTable = InterfaceTableAccess().get(this);
         mobility = check_and_cast<IMobility *>(findModuleWhereverInNode("mobility", this));
         // KLUDGE: simplify this when IPv4RoutingTable implements IRoutingTable
-        routingTable = check_and_cast<IRoutingTable *>(findModuleWhereverInNode(routingTableModuleName, this));
+        cModule * module = findModuleWhereverInNode(routingTableModuleName, this);
+        routingTable = dynamic_cast<IRoutingTable *>(module);
+        if (!routingTable && dynamic_cast<IPv4RoutingTable *>(module)) routingTable = dynamic_cast<IPv4RoutingTable *>(module)->asGeneric();
+        if (!routingTable && dynamic_cast<IPv6RoutingTable *>(module)) routingTable = dynamic_cast<IPv6RoutingTable *>(module)->asGeneric();
         networkProtocol = check_and_cast<INetfilter *>(findModuleWhereverInNode(networkProtocolModuleName, this));
         // internal
         beaconTimer = new cMessage("BeaconTimer");

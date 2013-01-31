@@ -18,10 +18,20 @@
 
 package inet.networklayer.routing.gpsr;
 
+import inet.networklayer.multi.NetworkDatagramMultiplexer;
+
+
+moduleinterface IGPSR
+{
+    gates:
+        input ipIn;
+        output ipOut;
+}
+
 //
 // http://www.eecs.harvard.edu/~htk/publication/2000-mobi-karp-kung.pdf
 //
-simple GPSR
+simple GPSR like IGPSR
 {
     parameters:
         // properties
@@ -32,13 +42,58 @@ simple GPSR
         string networkProtocolModuleName = default("ip");
 
         // gpsr parameters
-        int planarizationMode @enum(0, 1) = default(0); // 0 for GG, 1 for RNG
+        int planarizationMode @enum(0,1) = default(0); // 0 for GG, 1 for RNG
         string interfaces = default("*");
         double beaconInterval @unit("s") = default(10s);
-		double maxJitter @unit("s") = default(1s);
+        double maxJitter @unit("s") = default(1s);
         double neighborValidityInterval @unit("s") = default(30s);
 
     gates:
         input ipIn;
         output ipOut;
+}
+
+module MultiGPSR like IGPSR
+{
+    parameters:
+        @display("i=block/table");
+        bool enableIPv4 = default(true);
+        bool enableIPv6 = default(true);
+        bool enableGeneric = default(true);
+        ipv4GPSR.routingTableModuleName = default("ipv4RoutingTable");
+        ipv4GPSR.networkProtocolModuleName = default("ip");
+        ipv6GPSR.routingTableModuleName = default("ipv6RoutingTable");
+        ipv6GPSR.networkProtocolModuleName = default("ipv6");
+        genericGPSR.routingTableModuleName = default("genericRoutingTable");
+        genericGPSR.networkProtocolModuleName = default("gnp");
+
+    gates:
+        input ipIn;
+        output ipOut;
+
+    submodules:
+        // TODO: simplify names to ipv4, ipv6, generic once looking up modules support paths
+        ipv4GPSR: GPSR if enableIPv4 {
+            @display("p=100,100");
+        }
+        ipv6GPSR: GPSR if enableIPv6 {
+            @display("p=200,100");
+        }
+        genericGPSR: GPSR if enableGeneric {
+            @display("p=300,100");
+        }
+        multiplexer: NetworkDatagramMultiplexer {
+            @display("p=200,200");
+        }
+
+    connections allowunconnected:
+        multiplexer.upperOut --> ipOut;
+        ipIn --> multiplexer.upperIn;
+        multiplexer.lowerOut++ --> ipv4GPSR.ipIn if enableIPv4;
+        ipv4GPSR.ipOut --> multiplexer.lowerIn++ if enableIPv4;
+        multiplexer.lowerOut++ --> ipv6GPSR.ipIn if enableIPv6;
+        ipv6GPSR.ipOut --> multiplexer.lowerIn++ if enableIPv6;
+        multiplexer.lowerOut++ --> genericGPSR.ipIn if enableGeneric;
+        genericGPSR.ipOut --> multiplexer.lowerIn++ if enableGeneric;
+
 }

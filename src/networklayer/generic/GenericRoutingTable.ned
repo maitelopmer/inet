@@ -26,6 +26,7 @@ simple GenericRoutingTable like IRoutingTable
 {
     parameters:
         @display("i=block/table");
+        string addressType @enum("mac","modulepath","moduleid") = default("modulepath");
         string routerId = default("auto"); // for routers, the router id using address dotted
                           // notation; specify "auto" to select the highest
                           // interface address; should be left empty ("") for hosts

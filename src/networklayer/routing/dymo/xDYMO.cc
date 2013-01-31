@@ -25,6 +25,10 @@
 #include "INetworkProtocolControlInfo.h"
 #include "UDPControlInfo.h"
 
+// KLUDGE: kill this when they implements IRoutingTable
+#include "IPv4RoutingTable.h"
+#include "IPv6RoutingTable.h"
+
 DYMO_NAMESPACE_BEGIN
 
 Define_Module(DYMO::xDYMO);
@@ -82,8 +86,10 @@ void xDYMO::initialize(int stage) {
         notificationBoard = NotificationBoardAccess().get(this);
         interfaceTable = InterfaceTableAccess().get(this);
         // KLUDGE: simplify this when IPv4RoutingTable implements IRoutingTable
-        routingTable = check_and_cast<IRoutingTable *>(findModuleWhereverInNode(routingTableModuleName, this));
-//        routingTable = check_and_cast<IPv4RoutingTable *>(findModuleWhereverInNode(routingTableModuleName, this))->asGeneric();
+        cModule * module = findModuleWhereverInNode(routingTableModuleName, this);
+        routingTable = dynamic_cast<IRoutingTable *>(module);
+        if (!routingTable && dynamic_cast<IPv4RoutingTable *>(module)) routingTable = dynamic_cast<IPv4RoutingTable *>(module)->asGeneric();
+        if (!routingTable && dynamic_cast<IPv6RoutingTable *>(module)) routingTable = dynamic_cast<IPv6RoutingTable *>(module)->asGeneric();
         networkProtocol = check_and_cast<INetfilter *>(findModuleWhereverInNode(networkProtocolModuleName, this));
         // internal
         expungeTimer = new cMessage("ExpungeTimer");
@@ -1176,6 +1182,7 @@ DYMORouteState xDYMO::getRouteState(DYMORouteData * routeData) {
 //
 
 std::string xDYMO::getHostName() {
+    // TODO: this is fragile
     return getParentModule()->getFullName();
 }
 

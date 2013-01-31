@@ -25,6 +25,7 @@ package inet.networklayer.generic;
 simple GenericNetworkProtocol
 {
     parameters:
+        string routingTableModuleName = default("routingTable");
         double procDelay @unit("s") = default(0s);
         int hopLimit = default(32);
         string protocolMapping;
