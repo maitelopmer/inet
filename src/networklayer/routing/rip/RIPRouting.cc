@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#include "IAddressPolicy.h"
 #include "InterfaceTableAccess.h"
 #include "IPv4RoutingTable.h" // XXX temporarily
 #include "IPv6RoutingTable.h" // XXX temporarily
@@ -45,7 +46,7 @@ inline int prefixLength(const Address &netmask)
     return netmask.getType() == Address::IPv4 ? netmask.toIPv4().getNetmaskLength() : 32; // XXX IPv4 only
 }
 
-bool RIPRouting::isNeighbour(const Address &address)
+bool RIPRouting::isNeighbourAddress(const Address &address)
 {
     return true; // TODO
 }
@@ -112,7 +113,7 @@ void RIPRouting::initialize(int stage)
         ift = InterfaceTableAccess().get();
         //rt = ModuleAccess<IRoutingTable>(routingTableName).get();
         rt = ModuleAccess<IPv4RoutingTable>(routingTableName).get()->asGeneric(); // XXX
-        allRipRoutersGroup = Address(IPv4Address(RIP_IPV4_MULTICAST_ADDRESS)); // XXX set according to the type of the routing table
+        allRipRoutersGroup = rt->getRouterId().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
         updateTimer = new cMessage("RIP-timer");
         triggeredUpdateTimer = new cMessage("RIP-trigger");
         socket.setOutputGate(gate("udpOut"));
@@ -517,7 +518,7 @@ bool RIPRouting::isValidResponse(RIPPacket *packet)
     }
 
     // check that source is on a directly connected network
-    if (!isNeighbour(ctrlInfo->getSrcAddr()))
+    if (!isNeighbourAddress(ctrlInfo->getSrcAddr()))
     {
         EV << "RIP: source is not directly connected " << ctrlInfo->getSrcAddr() << "\n";
         return false;
@@ -545,7 +546,7 @@ bool RIPRouting::isValidResponse(RIPPacket *packet)
 
         // check that destination address is a unicast address
         // TODO exclude 0.x.x.x, 127.x.x.x too
-        if (/*!entry.address.isUnicast()*/ entry.address.isBroadcast() || entry.address.isMulticast())
+        if (!entry.address.isUnicast())
         {
             EV << "RIP: destination address of an entry is not unicast: " << entry.address << "\n";
             return false;

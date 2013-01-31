@@ -111,7 +111,7 @@ class INET_API RIPRouting : public cSimpleModule, protected INotifiable
     RIPInterfaceEntry *findInterfaceEntryById(int interfaceId);
     RIPRoute *findRoute(const Address &destAddress, const Address &subnetMask);
     RIPRoute *findLocalInterfaceRoute(IRoute *route);
-    bool isNeighbour(const Address &address);
+    bool isNeighbourAddress(const Address &address);
     bool isOwnAddress(const Address &address);
     void addInterface(InterfaceEntry *ie, int metric);
     void deleteInterface(InterfaceEntry *ie);
