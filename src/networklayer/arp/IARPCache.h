@@ -32,9 +32,9 @@
 class INET_API IARPCache
 {
   public:
-    virtual MACAddress getDirectAddressResolution(const IPv4Address&) const;
-    virtual IPv4Address getInverseAddressResolution(const MACAddress&) const;
-    virtual ~IARPCache();
+    virtual MACAddress getDirectAddressResolution(const IPv4Address&) const = 0;  //TODO rename
+    virtual IPv4Address getInverseAddressResolution(const MACAddress&) const = 0;
+    virtual ~IARPCache() {}
 };
 
 class INET_API ARPCacheAccess : public ModuleAccess<IARPCache>
