@@ -25,10 +25,18 @@ Define_Module(MultiNetworkLayerUpperMultiplexer);
 void MultiNetworkLayerUpperMultiplexer::handleMessage(cMessage * message) {
     cGate * arrivalGate = message->getArrivalGate();
     const char * arrivalGateName = arrivalGate->getBaseName();
-    if (!strcmp(arrivalGateName, "manetUpperIn"))
-        send(message, "manetLowerOut", getProtocolIndex(message));
-    else if (!strcmp(arrivalGateName, "manetLowerIn"))
-        send(message, "manetUpperOut");
+    if (!strcmp(arrivalGateName, "transportUpperIn")) {
+        if (dynamic_cast<cPacket *>(message))
+            send(message, "transportLowerOut", getProtocolIndex(message) * arrivalGate->getVectorSize() + arrivalGate->getIndex());
+        else
+            for (int i = 0; i < 3; i++) {
+                cMessage * duplicate = message->dup();
+                duplicate->setControlInfo(message->getControlInfo()->dup());
+                send(duplicate, "transportLowerOut", i * arrivalGate->getVectorSize() + arrivalGate->getIndex());
+            }
+    }
+    else if (!strcmp(arrivalGateName, "transportLowerIn"))
+        send(message, "transportUpperOut", arrivalGate->getIndex() % gateSize("transportUpperOut"));
     else if (!strcmp(arrivalGateName, "pingUpperIn"))
         send(message, "pingLowerOut", getProtocolIndex(message) * arrivalGate->getVectorSize() + arrivalGate->getIndex());
     else if (!strcmp(arrivalGateName, "pingLowerIn"))

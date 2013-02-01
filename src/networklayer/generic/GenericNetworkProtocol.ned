@@ -28,7 +28,6 @@ simple GenericNetworkProtocol
         string routingTableModuleName = default("routingTable");
         double procDelay @unit("s") = default(0s);
         int hopLimit = default(32);
-        string protocolMapping;
         @display("i=block/routing");
     gates:
         input transportIn[] @labels(GenericNetworkProtocolControlInfo/down,TCPSegment,UDPPacket);

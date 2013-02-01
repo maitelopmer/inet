@@ -28,6 +28,7 @@
 #include "IPv4Datagram.h"
 #include "IPv4InterfaceData.h"
 #include "IIPv4RoutingTable.h"
+#include "IPSocket.h"
 
 
 Define_Module(IPv4);
@@ -49,7 +50,6 @@ void IPv4::initialize()
     defaultMCTimeToLive = par("multicastTimeToLive");
     fragmentTimeoutTime = par("fragmentTimeout");
     forceBroadcast = par("forceBroadcast");
-    mapping.parseProtocolMapping(par("protocolMapping"));
 
     curFragmentId = 0;
     lastCheckTime = 0;
@@ -76,6 +76,17 @@ void IPv4::updateDisplayString()
     if (numDropped>0) sprintf(buf+strlen(buf), "DROP:%d ", numDropped);
     if (numUnroutable>0) sprintf(buf+strlen(buf), "UNROUTABLE:%d ", numUnroutable);
     getDisplayString().setTagArg("t", 0, buf);
+}
+
+void IPv4::handleMessage(cMessage *msg)
+{
+    if (msg->getKind() == IP_C_REGISTER_PROTOCOL) {
+        IPRegisterProtocolCommand * command = check_and_cast<IPRegisterProtocolCommand *>(msg->removeControlInfo());
+        mapping.addProtocolMapping(command->getProtocol(), msg->getArrivalGate()->getIndex());
+        delete msg;
+    }
+    else
+        QueueBase::handleMessage(msg);
 }
 
 void IPv4::endService(cPacket *msg)

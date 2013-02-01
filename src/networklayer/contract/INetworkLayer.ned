@@ -25,24 +25,10 @@ moduleinterface INetworkLayer
     parameters:
         @display("i=block/fork");
     gates:
-        // TODO: it should not have so many different gates
-        // TODO: we should rather have one upper and one lower input and output gates
+        input transportIn[] @labels(IPv4ControlInfo/down);
+        output transportOut[] @labels(IPv4ControlInfo/up);
+        input pingIn[]@labels(PingPayload/down);
+        output pingOut[] @labels(PingPayload/up);
         input ifIn[] @labels(INetworkDatagram);
-        input tcpIn @labels(TCPSegment,INetworkControlInfo/down);
-        input udpIn @labels(UDPPacket,INetworkControlInfo/down);
-        input sctpIn @labels(INetworkControlInfo/down,SCTPPacket);
-        input rsvpIn @labels(INetworkControlInfo/down);
-        input ospfIn @labels(INetworkControlInfo/down);
-        input pingIn[];
-        input manetIn;
-        input igmpIn;
         output ifOut[] @labels(INetworkDatagram);
-        output tcpOut @labels(TCPSegment,INetworkControlInfo/up);
-        output udpOut @labels(UDPPacket,INetworkControlInfo/up);
-        output sctpOut @labels(INetworkControlInfo/up,SCTPPacket);
-        output rsvpOut @labels(INetworkControlInfo/up);
-        output ospfOut @labels(INetworkControlInfo/up);
-        output pingOut[];
-        output manetOut;
-        output igmpOut;
 }

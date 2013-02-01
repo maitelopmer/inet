@@ -26,8 +26,8 @@ module AdhocHost extends WirelessHost
             @display("p=527,287");
         }
     connections:
-        gpsr.ipOut --> networkLayer.manetIn;
-        gpsr.ipIn <-- networkLayer.manetOut;
+        gpsr.ipOut --> networkLayer.transportIn++;
+        gpsr.ipIn <-- networkLayer.transportOut++;
 }
 
 //

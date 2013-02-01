@@ -92,8 +92,8 @@ module RTPHost
         rtcp.udpOut --> udp.appIn[1];
         rtcp.udpIn <-- udp.appOut[1];
 
-        networkLayer.udpOut --> udp.ipIn;
-        networkLayer.udpIn <-- udp.ipOut;
+        networkLayer.transportOut++ --> udp.ipIn;
+        networkLayer.transportIn++ <-- udp.ipOut;
 
         // connections to network outside
         for i=0..sizeof(pppg)-1 {

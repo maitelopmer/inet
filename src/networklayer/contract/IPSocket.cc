@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004, 2009 Andras Varga
+// Copyright (C) 2013 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -15,33 +15,21 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __INET_ECHOPROTOCOL_H
-#define __INET_ECHOPROTOCOL_H
+#include "IPSocket.h"
+#include "IPProtocolId_m.h"
 
-#include "INETDefs.h"
-#include "Address.h"
-#include "EchoPacket_m.h"
+void IPSocket::registerProtocol(int protocol) {
+    IPRegisterProtocolCommand * controlInfo = new IPRegisterProtocolCommand();
+    controlInfo->setProtocol(protocol);
+    cMessage * message = new cMessage("RegisterProtocol", IP_C_REGISTER_PROTOCOL);
+    message->setControlInfo(controlInfo);
+    sendToIP(message);
+}
 
-class PingPayload;
-
-/**
- * TODO
- */
-class INET_API EchoProtocol : public cSimpleModule
+void IPSocket::sendToIP(cMessage * message)
 {
-  protected:
-    typedef std::map<long,int> PingMap;
-    PingMap pingMap;
+    if (!gateToIP)
+        throw cRuntimeError("IPSocket: setOutputGate() must be invoked before socket can be used");
 
-  protected:
-    virtual void processPacket(EchoPacket * packet);
-    virtual void processEchoRequest(EchoPacket * packet);
-    virtual void processEchoReply(EchoPacket * packet);
-    virtual void sendEchoRequest(PingPayload * packet);
-
-  protected:
-    virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
-};
-
-#endif
+    check_and_cast<cSimpleModule *>(gateToIP->getOwnerModule())->send(message, gateToIP);
+}

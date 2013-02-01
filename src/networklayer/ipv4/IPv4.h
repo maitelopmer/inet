@@ -205,6 +205,11 @@ class INET_API IPv4 : public QueueBase, public INetfilter
     virtual void initialize();
 
     /**
+     * Handle message.
+     */
+    virtual void handleMessage(cMessage *msg);
+
+    /**
      * Processing of IPv4 datagrams. Called when a datagram reaches the front
      * of the queue.
      */

@@ -28,10 +28,10 @@ simple MultiNetworkLayerUpperMultiplexer
         @display("i=block/fork");
 
     gates:
-        input manetUpperIn;
-        output manetUpperOut;
-        input manetLowerIn[];
-        output manetLowerOut[];
+        input transportUpperIn[];
+        output transportUpperOut[];
+        input transportLowerIn[];
+        output transportLowerOut[];
         input pingUpperIn[];
         output pingUpperOut[];
         input pingLowerIn[];
@@ -78,23 +78,11 @@ module MultiNetworkLayer like INetworkLayer
 
     gates:
         input ifIn[] @labels(INetworkDatagram);
-        input tcpIn @labels(TCPSegment,INetworkControlInfo/down);
-        input udpIn @labels(UDPPacket,INetworkControlInfo/down);
-        input sctpIn @labels(INetworkControlInfo/down,SCTPPacket);
-        input rsvpIn @labels(INetworkControlInfo/down);
-        input ospfIn @labels(INetworkControlInfo/down);
-        input pingIn[];
-        input manetIn;
-        input igmpIn;
         output ifOut[] @labels(INetworkDatagram);
-        output tcpOut @labels(TCPSegment,INetworkControlInfo/up);
-        output udpOut @labels(UDPPacket,INetworkControlInfo/up);
-        output sctpOut @labels(INetworkControlInfo/up,SCTPPacket);
-        output rsvpOut @labels(INetworkControlInfo/up);
-        output ospfOut @labels(INetworkControlInfo/up);
-        output pingOut[];
-        output manetOut;
-        output igmpOut;
+        input transportIn[] @labels(IPv4ControlInfo/down);
+        output transportOut[] @labels(IPv4ControlInfo/up);
+        input pingIn[] @labels(PingPayload/down);
+        output pingOut[] @labels(PingPayload/up);
 
     submodules:
         // TODO: simplify names to ipv4, ipv6, generic once looking up modules support paths
@@ -115,73 +103,45 @@ module MultiNetworkLayer like INetworkLayer
         }
 
     connections allowunconnected:
-        // manet
-        manetIn --> upperMultiplexer.manetUpperIn;
-        upperMultiplexer.manetUpperOut --> manetOut;
-        ipv4NetworkLayer.manetOut --> upperMultiplexer.manetLowerIn++ if enableIPv4;
-        upperMultiplexer.manetLowerOut++ --> ipv4NetworkLayer.manetIn if enableIPv4;
-        ipv6NetworkLayer.manetOut --> upperMultiplexer.manetLowerIn++ if enableIPv6;
-        upperMultiplexer.manetLowerOut++ --> ipv6NetworkLayer.manetIn if enableIPv6;
-        genericNetworkLayer.manetOut --> upperMultiplexer.manetLowerIn++ if enableGeneric;
-        upperMultiplexer.manetLowerOut++ --> genericNetworkLayer.manetIn if enableGeneric;
+        // transport
+        for i=0..sizeof(transportIn)-1 {
+            upperMultiplexer.transportLowerOut++ --> ipv4NetworkLayer.transportIn++ if enableIPv4;
+            upperMultiplexer.transportLowerOut++ --> ipv6NetworkLayer.transportIn++ if enableIPv6;
+            upperMultiplexer.transportLowerOut++ --> genericNetworkLayer.transportIn++ if enableGeneric;
+            transportIn[i] --> { @display("m=n"); } --> upperMultiplexer.transportUpperIn++;
+        }
+        for i=0..sizeof(transportOut)-1 {
+            ipv4NetworkLayer.transportOut++ --> upperMultiplexer.transportLowerIn++ if enableIPv4;
+            ipv6NetworkLayer.transportOut++ --> upperMultiplexer.transportLowerIn++ if enableIPv6;
+            genericNetworkLayer.transportOut++ --> upperMultiplexer.transportLowerIn++ if enableGeneric;
+            upperMultiplexer.transportUpperOut++ --> { @display("m=n"); } --> transportOut[i];
+        }
 
-        // ipv4
+        // ping
         for i=0..sizeof(pingIn)-1 {
             upperMultiplexer.pingLowerOut++ --> ipv4NetworkLayer.pingIn++ if enableIPv4;
-        }
-        for i=0..sizeof(pingOut)-1 {
-            ipv4NetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableIPv4;
-        }
-        // ipv6
-        for i=0..sizeof(pingIn)-1 {
             upperMultiplexer.pingLowerOut++ --> ipv6NetworkLayer.pingIn++ if enableIPv6;
-        }
-        for i=0..sizeof(pingOut)-1 {
-            ipv6NetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableIPv6;
-        }
-        // generic
-        for i=0..sizeof(pingIn)-1 {
             upperMultiplexer.pingLowerOut++ --> genericNetworkLayer.pingIn++ if enableGeneric;
-        }
-        for i=0..sizeof(pingOut)-1 {
-            genericNetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableGeneric;
-        }
-
-		// xxx
-        for i=0..sizeof(pingIn)-1 {
             pingIn[i] --> { @display("m=n"); } --> upperMultiplexer.pingUpperIn++;
         }
         for i=0..sizeof(pingOut)-1 {
+            ipv4NetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableIPv4;
+            ipv6NetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableIPv6;
+            genericNetworkLayer.pingOut++ --> upperMultiplexer.pingLowerIn++ if enableGeneric;
             upperMultiplexer.pingUpperOut++ --> { @display("m=n"); } --> pingOut[i];
         }
 
-        // ipv4
+        // interface
         for i=0..sizeof(ifIn)-1 {
             lowerMultiplexer.ifUpperOut++ --> ipv4NetworkLayer.ifIn++ if enableIPv4;
-        }
-        for i=0..sizeof(ifOut)-1 {
-            ipv4NetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableIPv4;
-        }
-        // ipv6
-        for i=0..sizeof(ifIn)-1 {
             lowerMultiplexer.ifUpperOut++ --> ipv6NetworkLayer.ifIn++ if enableIPv6;
-        }
-        for i=0..sizeof(ifOut)-1 {
-            ipv6NetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableIPv6;
-        }
-        // generic
-        for i=0..sizeof(ifIn)-1 {
             lowerMultiplexer.ifUpperOut++ --> genericNetworkLayer.ifIn++ if enableGeneric;
-        }
-        for i=0..sizeof(ifOut)-1 {
-            genericNetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableGeneric;
-        }
-
-		// yyy
-        for i=0..sizeof(ifIn)-1 {
             ifIn[i] --> { @display("m=s"); } --> lowerMultiplexer.ifLowerIn++;
         }
         for i=0..sizeof(ifOut)-1 {
+            ipv4NetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableIPv4;
+            ipv6NetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableIPv6;
+            genericNetworkLayer.ifOut++ --> lowerMultiplexer.ifUpperIn++ if enableGeneric;
             lowerMultiplexer.ifLowerOut++ --> { @display("m=s"); } --> ifOut[i];
         }
 }

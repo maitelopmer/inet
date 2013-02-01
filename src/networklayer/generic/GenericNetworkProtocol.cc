@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
+#include "IPSocket.h"
 #include "GenericNetworkProtocol.h"
 #include "GenericDatagram.h"
 #include "GenericNetworkProtocolControlInfo.h"
@@ -35,7 +36,6 @@ void GenericNetworkProtocol::initialize()
     queueOutGate = gate("queueOut");
 
     defaultHopLimit = par("hopLimit");
-    mapping.parseProtocolMapping(par("protocolMapping"));
 
     numLocalDeliver = numDropped = numUnroutable = numForwarded = 0;
 
@@ -53,6 +53,17 @@ void GenericNetworkProtocol::updateDisplayString()
     if (numDropped>0) sprintf(buf+strlen(buf), "DROP:%d ", numDropped);
     if (numUnroutable>0) sprintf(buf+strlen(buf), "UNROUTABLE:%d ", numUnroutable);
     getDisplayString().setTagArg("t",0,buf);
+}
+
+void GenericNetworkProtocol::handleMessage(cMessage *msg)
+{
+    if (msg->getKind() == IP_C_REGISTER_PROTOCOL) {
+        IPRegisterProtocolCommand * command = check_and_cast<IPRegisterProtocolCommand *>(msg->removeControlInfo());
+        mapping.addProtocolMapping(command->getProtocol(), msg->getArrivalGate()->getIndex());
+        delete msg;
+    }
+    else
+        QueueBase::handleMessage(msg);
 }
 
 void GenericNetworkProtocol::endService(cPacket *pk)

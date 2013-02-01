@@ -79,7 +79,6 @@ simple IPv6
     parameters:
         string routingTableModuleName = default("routingTable");
         double procDelay @unit("s") = default(0s);
-        string protocolMapping;
         @display("i=block/network2");
     gates:
         input transportIn[] @labels(IPv6ControlInfo/down,TCPSegment,UDPPacket);

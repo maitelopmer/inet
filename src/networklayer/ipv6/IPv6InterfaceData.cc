@@ -31,7 +31,7 @@
 IPv6InterfaceData::IPv6InterfaceData()
 {
 #ifdef WITH_xMIPv6
-    rt6 = RoutingTable6Access().get();
+    // TODO: delete? rt6 = RoutingTable6Access().get();
 #endif /* WITH_xMIPv6 */
     /*******************Setting host/node/router Protocol Constants************/
     routerConstants.maxInitialRtrAdvertInterval = IPv6_MAX_INITIAL_RTR_ADVERT_INTERVAL;
@@ -107,8 +107,9 @@ std::string IPv6InterfaceData::info() const
            << (isTentativeAddress(i)?" tent":"") << ") "
 
 #ifdef WITH_xMIPv6
-           << ((rt6->isMobileNode() && getAddress(i).isGlobal())
-               ? (addresses[i].addrType==HoA ? "HoA" : "CoA") : "")
+// TODO: revise, routing table is not that simple to access
+//           << ((rt6->isMobileNode() && getAddress(i).isGlobal())
+//               ? (addresses[i].addrType==HoA ? "HoA" : "CoA") : "")
 #endif /* WITH_xMIPv6 */
 
            << " expiryTime: " << (addresses[i].expiryTime==0 ? "inf" : SIMTIME_STR(addresses[i].expiryTime))
@@ -148,9 +149,10 @@ std::string IPv6InterfaceData::info() const
 #ifdef WITH_xMIPv6
     // the following is for MIPv6 support
     // 4.9.07 - Zarrar, CB
-    if ( rt6->isMobileNode() )
-        os << "\tHome Network Info: " << " HoA="<< homeInfo.HoA << ", HA=" << homeInfo.homeAgentAddr
-           << ", home prefix=" << homeInfo.prefix/*.prefix()*/ << "\n";
+// TODO: revise, routing table is not that simple to access
+//    if ( rt6->isMobileNode() )
+//        os << "\tHome Network Info: " << " HoA="<< homeInfo.HoA << ", HA=" << homeInfo.homeAgentAddr
+//           << ", home prefix=" << homeInfo.prefix/*.prefix()*/ << "\n";
 #endif /* WITH_xMIPv6 */
 
     if (rtrVars.advSendAdvertisements)

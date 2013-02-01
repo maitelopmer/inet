@@ -25,8 +25,8 @@ module AdhocHost extends WirelessHost
             @display("p=527,287");
         }
     connections:
-        dymo.ipOut --> networkLayer.manetIn;
-        dymo.ipIn <-- networkLayer.manetOut;
+        dymo.ipOut --> networkLayer.transportIn++;
+        dymo.ipIn <-- networkLayer.transportOut++;
 }
 
 //

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2004, 2009 Andras Varga
+// Copyright (C) 2013 Andras Varga
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -15,33 +15,37 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef __INET_ECHOPROTOCOL_H
-#define __INET_ECHOPROTOCOL_H
+#ifndef __INET_IPSOCKET_H_
+#define __INET_IPSOCKET_H_
 
 #include "INETDefs.h"
-#include "Address.h"
-#include "EchoPacket_m.h"
 
-class PingPayload;
+#define IP_C_REGISTER_PROTOCOL 1199
 
 /**
  * TODO
  */
-class INET_API EchoProtocol : public cSimpleModule
-{
-  protected:
-    typedef std::map<long,int> PingMap;
-    PingMap pingMap;
+class IPSocket {
+  private:
+    cGate * gateToIP;
 
   protected:
-    virtual void processPacket(EchoPacket * packet);
-    virtual void processEchoRequest(EchoPacket * packet);
-    virtual void processEchoReply(EchoPacket * packet);
-    virtual void sendEchoRequest(PingPayload * packet);
+    void sendToIP(cMessage * message);
 
-  protected:
-    virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+  public:
+    IPSocket(cGate * gateToIP = NULL) { this->gateToIP = gateToIP; }
+    virtual ~IPSocket() { }
+
+    /**
+     * Sets the gate on which to send to IP. Must be invoked before socket
+     * can be used. Example: <tt>socket.setOutputGate(gate("ipOut"));</tt>
+     */
+    void setOutputGate(cGate * gateToIP) { this->gateToIP = gateToIP;}
+
+    /**
+     * Registers the given IP protocol to the connected gate.
+     */
+    void registerProtocol(int protocol);
 };
 
 #endif

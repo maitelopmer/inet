@@ -20,6 +20,7 @@
 #include "NotificationBoard.h"
 #include "InterfaceTableAccess.h"
 #include "IPProtocolId_m.h"
+#include "IPSocket.h"
 // KLUDGE:
 #include "IPv4RoutingTable.h"
 #include "IPv6RoutingTable.h"
@@ -81,6 +82,8 @@ void GPSR::initialize(int stage) {
         purgeNeighborsTimer = new cMessage("PurgeNeighborsTimer");
         scheduleBeaconTimer();
         schedulePurgeNeighborsTimer();
+        IPSocket socket(gate("ipOut"));
+        socket.registerProtocol(IP_PROT_MANET);
     }
     else if (stage == 4) {
         notificationBoard->subscribe(this, NF_LINK_BREAK);

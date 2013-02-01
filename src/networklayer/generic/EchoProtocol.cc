@@ -16,13 +16,18 @@
 //
 
 #include <string.h>
-
 #include "EchoProtocol.h"
-
+#include "IPSocket.h"
 #include "GenericNetworkProtocolControlInfo.h"
 #include "PingPayload_m.h"
 
 Define_Module(EchoProtocol);
+
+void EchoProtocol::initialize(int stage)
+{
+    IPSocket socket(gate("sendOut"));
+    socket.registerProtocol(IP_PROT_ICMP);
+}
 
 void EchoProtocol::handleMessage(cMessage *msg)
 {

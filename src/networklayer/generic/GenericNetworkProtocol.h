@@ -168,6 +168,11 @@ class INET_API GenericNetworkProtocol : public QueueBase, public INetfilter
     virtual void initialize();
 
     /**
+     * Handle message.
+     */
+    virtual void handleMessage(cMessage *msg);
+
+    /**
      * Processing of Generic datagrams. Called when a datagram reaches the front
      * of the queue.
      */
