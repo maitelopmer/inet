@@ -95,5 +95,4 @@ module MultiGPSR like IGPSR
         ipv6GPSR.ipOut --> multiplexer.lowerIn++ if enableIPv6;
         multiplexer.lowerOut++ --> genericGPSR.ipIn if enableGeneric;
         genericGPSR.ipOut --> multiplexer.lowerIn++ if enableGeneric;
-
 }

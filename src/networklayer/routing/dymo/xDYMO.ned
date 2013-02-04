@@ -18,6 +18,15 @@
 
 package inet.networklayer.routing.dymo;
 
+import inet.networklayer.multi.NetworkDatagramMultiplexer;
+
+moduleinterface IDYMO
+{
+    gates:
+        input ipIn;
+        output ipOut;
+}
+
 //
 // Dynamic MANET On-demand (DYMO also known as AODVv2) Routing 
 // based on draft-ietf-manet-dymo-24.
@@ -26,17 +35,17 @@ package inet.networklayer.routing.dymo;
 // for consistency with INET naming conventions. Some parameters
 // are not yet implemented.
 //
-simple xDYMO
+simple xDYMO like IDYMO
 {
     parameters:
         // properties
         @class("DYMO::xDYMO");
-	    @display("i=block/routing");
+        @display("i=block/routing");
 
         // context parameters
         string routingTableModuleName = default("routingTable");
         string networkProtocolModuleName = default("ip");
-        
+
         // 1. DYMO parameter group
         string clientAddresses = default("10.10.0.0/24 10.20.0.0"); // CLIENT_ADDRESSES
         bool useMulticastRREP = default(false); // USE_MULTICAST_RREP
@@ -51,26 +60,70 @@ simple xDYMO
         // double UNICAST_MESSAGE_SENT_TIMEOUT @unit("s") = default(1s); 
         double rreqHolddownTime @unit("s") = default(10s); // RREQ_HOLDDOWN_TIME 
 
-		// 3. DYMO parameter group
-		int maxHopCount = default(20); // MAX_HOPCOUNT
-		// string MAX_METRIC = default("");
-		// double MAXTIME;
-		int discoveryAttemptsMax = default(3); // DISCOVERY_ATTEMPTS_MAX
+        // 3. DYMO parameter group
+        int maxHopCount = default(20); // MAX_HOPCOUNT
+        // string MAX_METRIC = default("");
+        // double MAXTIME;
+        int discoveryAttemptsMax = default(3); // DISCOVERY_ATTEMPTS_MAX
 		// int MTU;
-		
-		// 4. DYMO parameter group
-		bool appendInformation = default(true); //APPEND_INFORMATION;
+
+        // 4. DYMO parameter group
+        bool appendInformation = default(true); //APPEND_INFORMATION;
         int bufferSizePackets = default(-1); // BUFFER_SIZE_PACKETS
         int bufferSizeBytes @unit("B") = default(-1B); //  BUFFER_SIZE_BYTES
         // double CONTROL_TRAFFIC_LIMIT
 
-		// DYMO extension parameters
-		double maxJitter @unit("s") = default(10ms);
-		bool sendIntermediateRREP = default(true);
+        // DYMO extension parameters
+        double maxJitter @unit("s") = default(10ms);
+        bool sendIntermediateRREP = default(true);
         int minHopLimit = default(5);
         int maxHopLimit = default(10);
-    
+
     gates:
         input ipIn;
         output ipOut;
+}
+
+module MultiDYMO like IDYMO
+{
+    parameters:
+        @display("i=block/table");
+        bool enableIPv4 = default(true);
+        bool enableIPv6 = default(true);
+        bool enableGeneric = default(true);
+        ipv4DYMO.routingTableModuleName = default("ipv4RoutingTable");
+        ipv4DYMO.networkProtocolModuleName = default("ip");
+        ipv6DYMO.routingTableModuleName = default("ipv6RoutingTable");
+        ipv6DYMO.networkProtocolModuleName = default("ipv6");
+        genericDYMO.routingTableModuleName = default("genericRoutingTable");
+        genericDYMO.networkProtocolModuleName = default("gnp");
+
+    gates:
+        input ipIn;
+        output ipOut;
+
+    submodules:
+        // TODO: simplify names to ipv4, ipv6, generic once looking up modules support paths
+        ipv4DYMO: xDYMO if enableIPv4 {
+            @display("p=100,100");
+        }
+        ipv6DYMO: xDYMO if enableIPv6 {
+            @display("p=200,100");
+        }
+        genericDYMO: xDYMO if enableGeneric {
+            @display("p=300,100");
+        }
+        multiplexer: NetworkDatagramMultiplexer {
+            @display("p=200,200");
+        }
+
+    connections allowunconnected:
+        multiplexer.upperOut --> ipOut;
+        ipIn --> multiplexer.upperIn;
+        multiplexer.lowerOut++ --> ipv4DYMO.ipIn if enableIPv4;
+        ipv4DYMO.ipOut --> multiplexer.lowerIn++ if enableIPv4;
+        multiplexer.lowerOut++ --> ipv6DYMO.ipIn if enableIPv6;
+        ipv6DYMO.ipOut --> multiplexer.lowerIn++ if enableIPv6;
+        multiplexer.lowerOut++ --> genericDYMO.ipIn if enableGeneric;
+        genericDYMO.ipOut --> multiplexer.lowerIn++ if enableGeneric;
 }

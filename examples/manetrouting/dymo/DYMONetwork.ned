@@ -6,7 +6,7 @@ package inet.examples.manetrouting.dymo;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.networklayer.routing.dymo.xDYMO;
+import inet.networklayer.routing.dymo.IDYMO;
 import inet.nodes.inet.WirelessHost;
 import inet.world.radio.ChannelControl;
 
@@ -20,8 +20,9 @@ module AdhocHost extends WirelessHost
         @display("i=device/cellphone");
         IPForward = true;
         wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");
+        string dymoType = default("xDYMO");
     submodules:
-        dymo: xDYMO {
+        dymo: <dymoType> like IDYMO {
             @display("p=527,287");
         }
     connections:
