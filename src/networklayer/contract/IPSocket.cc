@@ -19,11 +19,13 @@
 #include "IPProtocolId_m.h"
 
 void IPSocket::registerProtocol(int protocol) {
-    IPRegisterProtocolCommand * controlInfo = new IPRegisterProtocolCommand();
-    controlInfo->setProtocol(protocol);
-    cMessage * message = new cMessage("RegisterProtocol", IP_C_REGISTER_PROTOCOL);
-    message->setControlInfo(controlInfo);
-    sendToIP(message);
+    if (gateToIP && gateToIP->isConnected()) {
+        IPRegisterProtocolCommand * controlInfo = new IPRegisterProtocolCommand();
+        controlInfo->setProtocol(protocol);
+        cMessage * message = new cMessage("RegisterProtocol", IP_C_REGISTER_PROTOCOL);
+        message->setControlInfo(controlInfo);
+        sendToIP(message);
+    }
 }
 
 void IPSocket::sendToIP(cMessage * message)
