@@ -29,6 +29,7 @@
 #include "Ieee802Ctrl_m.h"
 #include "IPv4RoutingTableAccess.h"
 #include "InterfaceTableAccess.h"
+#include "IARPCache.h"
 #include "Coord.h"
 #include "ControlInfoBreakLink_m.h"
 #include "Ieee80211Frame_m.h"
@@ -236,7 +237,7 @@ void ManetRoutingBase::registerRoutingModule()
         {
             (*interfaceVector)[i].interfacePtr->ipv4Data()->joinMulticastGroup(IPv4Address::LL_MANET_ROUTERS);
         }
-        arp = ArpAccess().get();
+        arp = ARPCacheAccess().get();
     }
     nb->subscribe(this,NF_L2_AP_DISASSOCIATED);
     nb->subscribe(this,NF_L2_AP_ASSOCIATED);
@@ -396,7 +397,7 @@ void ManetRoutingBase::sendToIpOnIface(cPacket *msg, int srcPort, const ManetAdd
                 cPacket *msgAux = msg->dup();
 // Set the control info to the duplicate packet
                 if (ie)
-                    ctrlAux->setInputPort(ie->getInterfaceId());
+                    ctrlAux->setInterfaceId(ie->getInterfaceId());
                 msgAux->setControlInfo(ctrlAux);
                 sendDelayed(msgAux, delay, "to_ip");
 
@@ -405,7 +406,7 @@ void ManetRoutingBase::sendToIpOnIface(cPacket *msg, int srcPort, const ManetAdd
         }
 
         if (ie)
-            ctrl->setInputPort(ie->getInterfaceId());
+            ctrl->setInterfaceId(ie->getInterfaceId());
         msg->setControlInfo(ctrl);
         sendDelayed(msg, delay, "to_ip");
         return;

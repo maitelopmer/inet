@@ -94,6 +94,8 @@ simple IPv4
     gates:
         input transportIn[] @labels(IPv4ControlInfo/down,TCPSegment,UDPPacket);
         output transportOut[] @labels(IPv4ControlInfo/up,TCPSegment,UDPPacket);
-        input queueIn[] @labels(IPv4Datagram);
-        output queueOut @labels(IPv4Datagram);
+        input arpIn @labels(IPv4Datagram,ARPPacket,Ieee802Ctrl);
+        output arpOut @labels(IPv4Datagram+IPv4RoutingDecision,ARPPacket+Ieee802Ctrl);
+        input queueIn[] @labels(IPv4Datagram,ARPPacket,Ieee802Ctrl);
+        output queueOut[] @labels(IPv4Datagram,ARPPacket,Ieee802Ctrl);
 }

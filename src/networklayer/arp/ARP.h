@@ -28,6 +28,7 @@
 #include "MACAddress.h"
 #include "ModuleAccess.h"
 #include "IPv4Address.h"
+#include "IARPCache.h"
 
 // Forward declarations:
 class ARPPacket;
@@ -38,7 +39,7 @@ class IIPv4RoutingTable;
 /**
  * ARP implementation.
  */
-class INET_API ARP : public cSimpleModule
+class INET_API ARP : public cSimpleModule, public IARPCache
 {
   public:
     struct ARPCacheEntry;
@@ -82,20 +83,17 @@ class INET_API ARP : public cSimpleModule
     static int globalArpCacheRefCnt;
 
     cQueue pendingQueue; // outbound packets waiting for ARP resolution
-    int nicOutBaseGateId;  // id of the nicOut[0] gate
 
     IInterfaceTable *ift;
-    IIPv4RoutingTable *rt;  // for Proxy ARP
-
-    // Maps an IP multicast address to an Ethernet multicast address.
-    MACAddress mapMulticastAddress(IPv4Address addr);
+    IIPv4RoutingTable *rt;  // for answering ProxyARP requests
+    cGate *ipOutGate;
 
   public:
     ARP();
     virtual ~ARP();
     int numInitStages() const {return 5;}
-    const MACAddress getDirectAddressResolution(const IPv4Address &) const;
-    const IPv4Address getInverseAddressResolution(const MACAddress &) const;
+    virtual MACAddress getDirectAddressResolution(const IPv4Address &) const;
+    virtual IPv4Address getInverseAddressResolution(const MACAddress &) const;
     void setChangeAddress(const IPv4Address &);
 
   protected:
@@ -116,12 +114,6 @@ class INET_API ARP : public cSimpleModule
     virtual void dumpARPPacket(ARPPacket *arp);
     virtual void updateDisplayString();
 
-};
-
-class INET_API ArpAccess : public ModuleAccess<ARP>
-{
-  public:
-    ArpAccess() : ModuleAccess<ARP>("arp") {}
 };
 
 #endif
