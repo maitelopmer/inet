@@ -22,6 +22,7 @@
 
 #include "ManetRoutingBase.h"
 #include "UDPPacket.h"
+#include "IPSocket.h"
 #include "IPv4Datagram.h"
 #include "IPv4ControlInfo.h"
 #include "IPv4InterfaceData.h"
@@ -272,6 +273,8 @@ void ManetRoutingBase::registerRoutingModule()
     initHook(this);
 
  //   WATCH_MAP(*routesVector);
+    IPSocket socket(gate("to_ip"));
+    socket.registerProtocol(IP_PROT_MANET);
 }
 
 ManetRoutingBase::~ManetRoutingBase()

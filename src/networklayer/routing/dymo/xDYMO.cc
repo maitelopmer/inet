@@ -19,6 +19,7 @@
 #include "xDYMO.h"
 #include "NotificationBoard.h"
 #include "InterfaceTableAccess.h"
+#include "IPSocket.h"
 #include "IPProtocolId_m.h"
 #include "Ieee80211Frame_m.h"
 #include "AddressResolver.h"
@@ -93,6 +94,8 @@ void xDYMO::initialize(int stage) {
         networkProtocol = check_and_cast<INetfilter *>(findModuleWhereverInNode(networkProtocolModuleName, this));
         // internal
         expungeTimer = new cMessage("ExpungeTimer");
+        IPSocket socket(gate("ipOut"));
+        socket.registerProtocol(IP_PROT_MANET);
         AddressResolver addressResolver;
         cStringTokenizer tokenizer(clientAddresses);
         while (tokenizer.hasMoreTokens()) {

@@ -18,6 +18,7 @@
 
 #include "TCP.h"
 
+#include "IPSocket.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
 #include "TCPConnection.h"
@@ -92,6 +93,11 @@ void TCP::initialize()
     cModule *netw = simulation.getSystemModule();
     testing = netw->hasPar("testing") && netw->par("testing").boolValue();
     logverbose = !testing && netw->hasPar("logverbose") && netw->par("logverbose").boolValue();
+
+    IPSocket ipSocket(gate("ipOut"));
+    ipSocket.registerProtocol(IP_PROT_ICMP);
+    IPSocket ipv6Socket(gate("ipv6Out"));
+    ipv6Socket.registerProtocol(IP_PROT_ICMP);
 }
 
 TCP::~TCP()
