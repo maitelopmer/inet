@@ -610,10 +610,10 @@ void IPv6RoutingTable::addOrUpdateOnLinkPrefix(const IPv6Address& destPrefix, in
     else
     {
         // update existing one; notification-wise, we pretend the route got removed then re-added
-        nb->fireChangeNotification(NF_IPv6_ROUTE_DELETED, route);
+        nb->fireChangeNotification(NF_ROUTE_DELETED, route->asGeneric());
         route->setInterfaceId(interfaceId);
         route->setExpiryTime(expiryTime);
-        nb->fireChangeNotification(NF_IPv6_ROUTE_ADDED, route);
+        nb->fireChangeNotification(NF_ROUTE_ADDED, route->asGeneric());
     }
 
     updateDisplayString();
@@ -649,10 +649,10 @@ void IPv6RoutingTable::addOrUpdateOwnAdvPrefix(const IPv6Address& destPrefix, in
     else
     {
         // update existing one; notification-wise, we pretend the route got removed then re-added
-        nb->fireChangeNotification(NF_IPv6_ROUTE_DELETED, route);
+        nb->fireChangeNotification(NF_ROUTE_DELETED, route->asGeneric());
         route->setInterfaceId(interfaceId);
         route->setExpiryTime(expiryTime);
-        nb->fireChangeNotification(NF_IPv6_ROUTE_ADDED, route);
+        nb->fireChangeNotification(NF_ROUTE_ADDED, route->asGeneric());
     }
 
     updateDisplayString();
@@ -733,7 +733,7 @@ void IPv6RoutingTable::addRoute(IPv6Route *route)
 
     updateDisplayString();
 
-    nb->fireChangeNotification(NF_IPv6_ROUTE_ADDED, route);
+    nb->fireChangeNotification(NF_ROUTE_ADDED, route->asGeneric());
 }
 
 void IPv6RoutingTable::removeRoute(IPv6Route *route)
@@ -741,7 +741,7 @@ void IPv6RoutingTable::removeRoute(IPv6Route *route)
     RouteList::iterator it = std::find(routeList.begin(), routeList.end(), route);
     ASSERT(it!=routeList.end());
 
-    nb->fireChangeNotification(NF_IPv6_ROUTE_DELETED, route); // rather: going to be deleted
+    nb->fireChangeNotification(NF_ROUTE_DELETED, route->asGeneric()); // rather: going to be deleted
 
     routeList.erase(it);
     delete route;

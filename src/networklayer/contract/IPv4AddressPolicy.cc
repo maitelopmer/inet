@@ -18,3 +18,5 @@
 #include "IPv4AddressPolicy.h"
 
 IPv4AddressPolicy IPv4AddressPolicy::INSTANCE;
+
+const IPv4Address IPv4AddressPolicy::ALL_RIP_ROUTERS_MCAST("224.0.0.9");

@@ -24,6 +24,7 @@
 #include "INETDefs.h"
 #include "IIPv4RoutingTable.h"
 #include "INotifiable.h"
+#include "IRoute.h"
 
 /**
  * Records interface table and routing table changes into the eventlog.
@@ -56,7 +57,7 @@ class INET_API RoutingTableRecorder : public cSimpleModule, public cIndexedEvent
     long interfaceKey;
     long routeKey;
     std::map<InterfaceEntry *, long> interfaceEntryToKey;
-    std::map<IPv4Route *, long> routeToKey;
+    std::map<IRoute *, long> routeToKey;
 
   public:
     RoutingTableRecorder();
@@ -71,7 +72,7 @@ class INET_API RoutingTableRecorder : public cSimpleModule, public cIndexedEvent
     virtual void recordSnapshot();
     virtual void recordIndex() {}
     virtual void recordInterface(cModule *host, InterfaceEntry *ie, int category);
-    virtual void recordRoute(cModule *host, IPv4Route *route, int category);
+    virtual void recordRoute(cModule *host, IRoute *route, int category);
 };
 
 #endif /*OMNETPP_VERSION*/

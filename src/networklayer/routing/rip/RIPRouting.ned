@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013 Andras Varga
+// Copyright (C) 2013 Opensim Ltd.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -15,8 +15,22 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "IPv6AddressPolicy.h"
+package inet.networklayer.routing.rip;
 
-IPv6AddressPolicy IPv6AddressPolicy::INSTANCE;
-
-const IPv6Address IPv6AddressPolicy::ALL_RIP_ROUTERS_MCAST("FF02::9");
+//
+// Routing Information Protocol v2 (RFC 2453).
+//
+// distance vector routing
+//
+// limitations:
+//   the metric diameter of the network must be smaller than 16
+//
+simple RIPRouting
+{
+    parameters:
+        string routingTableName;
+        bool usePoisonedSplitHorizon = default(true);
+    gates:
+        input udpIn @labels(UDPControlInfo/up);
+        output udpOut @labels(UDPControlInfo/down);
+}

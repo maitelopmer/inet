@@ -80,9 +80,9 @@ void RoutingTableRecorder::hookListeners()
             nb->subscribe(listener, NF_INTERFACE_IPv4CONFIG_CHANGED);
             //nb->subscribe(listener, NF_INTERFACE_IPv6CONFIG_CHANGED);
             //nb->subscribe(listener, NF_INTERFACE_STATE_CHANGED);
-            nb->subscribe(listener, NF_IPv4_ROUTE_ADDED);
-            nb->subscribe(listener, NF_IPv4_ROUTE_DELETED);
-            nb->subscribe(listener, NF_IPv4_ROUTE_CHANGED);
+            nb->subscribe(listener, NF_ROUTE_ADDED);
+            nb->subscribe(listener, NF_ROUTE_DELETED);
+            nb->subscribe(listener, NF_ROUTE_CHANGED);
         }
     }
     // hook on eventlog manager
@@ -95,8 +95,8 @@ void RoutingTableRecorder::hookListeners()
 void RoutingTableRecorder::receiveChangeNotification(NotificationBoard *nb, int category, const cObject *details)
 {
     cModule *host = nb->getParentModule();
-    if (category==NF_IPv4_ROUTE_ADDED || category==NF_IPv4_ROUTE_DELETED || category==NF_IPv4_ROUTE_CHANGED)
-        recordRoute(host, check_and_cast<IPv4Route *>(details), category);
+    if (category==NF_ROUTE_ADDED || category==NF_ROUTE_DELETED || category==NF_ROUTE_CHANGED)
+        recordRoute(host, check_and_cast<IRoute *>(details), category);
     else if (category==NF_INTERFACE_CREATED || category==NF_INTERFACE_DELETED || category==NF_INTERFACE_CONFIG_CHANGED || category==NF_INTERFACE_IPv4CONFIG_CHANGED)
         recordInterface(host, check_and_cast<InterfaceEntry *>(details), category);
 }
@@ -118,7 +118,7 @@ void RoutingTableRecorder::recordSnapshot()
         if (rt) {
             cModule *host = module->getParentModule();
             for (int i = 0; i < rt->getNumRoutes(); i++)
-                recordRoute(host, rt->getRoute(i), -1);
+                recordRoute(host, rt->getRoute(i)->asGeneric(), -1);
         }
     }
 }
@@ -153,27 +153,27 @@ void RoutingTableRecorder::recordInterface(cModule *host, InterfaceEntry *interf
     }
 }
 
-
-void RoutingTableRecorder::recordRoute(cModule *host,  IPv4Route *route, int category)
+// XXX
+void RoutingTableRecorder::recordRoute(cModule *host,  IRoute *route, int category)
 {
-    IIPv4RoutingTable *rt = route->getRoutingTable(); // may be NULL! (route already removed from its routing table)
+    IRoutingTable *rt = route->getRoutingTable(); // may be NULL! (route already removed from its routing table)
     cEnvir* envir = simulation.getEnvir();
     // moduleId, routerID, dest, dest netmask, nexthop
     std::stringstream content;
     content << host->getId() << " " << (rt ? rt->getRouterId().str() : "*") << " ";
-    content << route->getDestination().str() << " " << route->getNetmask().str() << " ";
-    content << route->getGateway().str();
+    content << route->getDestination().str() << " " << route->getPrefixLength() << " ";
+    content << route->getNextHop().str();
     switch (category) {
-        case NF_IPv4_ROUTE_ADDED:
+        case NF_ROUTE_ADDED:
             envir->customCreatedEntry("RT", routeKey, content.str().c_str());
             routeToKey[route] = routeKey;
             routeKey++;
             break;
-        case NF_IPv4_ROUTE_DELETED:
+        case NF_ROUTE_DELETED:
             envir->customDeletedEntry("RT", routeToKey[route]);
             routeToKey.erase(route);
             break;
-        case NF_IPv4_ROUTE_CHANGED:
+        case NF_ROUTE_CHANGED:
             envir->customChangedEntry("RT", routeToKey[route], content.str().c_str());
             break;
         case -1:
