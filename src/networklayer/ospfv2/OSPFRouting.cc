@@ -72,7 +72,7 @@ void OSPFRouting::initialize(int stage)
         ospfRouter->addWatches();
 
         IPSocket ipSocket(gate("ipOut"));
-        ipSocket.registerProtocol(IP_PROT_ICMP);
+        ipSocket.registerProtocol(IP_PROT_OSPF);
     }
 }
 

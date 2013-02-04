@@ -129,9 +129,9 @@ void UDP::initialize()
     droppedPkBadChecksumSignal = registerSignal("droppedPkBadChecksum");
 
     IPSocket ipSocket(gate("ipOut"));
-    ipSocket.registerProtocol(IP_PROT_ICMP);
+    ipSocket.registerProtocol(IP_PROT_UDP);
     IPSocket ipv6Socket(gate("ipv6Out"));
-    ipv6Socket.registerProtocol(IP_PROT_ICMP);
+    ipv6Socket.registerProtocol(IP_PROT_UDP);
 }
 
 void UDP::handleMessage(cMessage *msg)

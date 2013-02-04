@@ -95,9 +95,9 @@ void TCP::initialize()
     logverbose = !testing && netw->hasPar("logverbose") && netw->par("logverbose").boolValue();
 
     IPSocket ipSocket(gate("ipOut"));
-    ipSocket.registerProtocol(IP_PROT_ICMP);
+    ipSocket.registerProtocol(IP_PROT_TCP);
     IPSocket ipv6Socket(gate("ipv6Out"));
-    ipv6Socket.registerProtocol(IP_PROT_ICMP);
+    ipv6Socket.registerProtocol(IP_PROT_TCP);
 }
 
 TCP::~TCP()

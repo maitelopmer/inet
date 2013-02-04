@@ -68,7 +68,7 @@ void LinkStateRouting::initialize(int stage)
         announceMsg = new cMessage("announce");
         scheduleAt(simTime() + exponential(0.01), announceMsg);
         IPSocket socket(gate("ipOut"));
-        socket.registerProtocol(IP_PROT_ICMP);
+        socket.registerProtocol(IP_PROT_OSPF);
     }
 }
 

@@ -112,7 +112,7 @@ void SCTP::initialize()
         bindPortForUDP();
 
     IPSocket socket(gate("to_ip"));
-    socket.registerProtocol(IP_PROT_ICMP);
+    socket.registerProtocol(IP_PROT_SCTP);
 }
 
 
