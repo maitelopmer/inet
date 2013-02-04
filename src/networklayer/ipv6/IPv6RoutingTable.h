@@ -74,7 +74,7 @@ class INET_API IPv6Route : public cObject
         adapter = NULL;
     }
 
-    virtual ~IPv6Route() {delete adapter;}
+    virtual ~IPv6Route();
 
     virtual std::string info() const;
     virtual std::string detailedInfo() const;

@@ -28,12 +28,14 @@ void MultiNetworkLayerUpperMultiplexer::handleMessage(cMessage * message) {
     if (!strcmp(arrivalGateName, "transportUpperIn")) {
         if (dynamic_cast<cPacket *>(message))
             send(message, "transportLowerOut", getProtocolIndex(message) * arrivalGate->getVectorSize() + arrivalGate->getIndex());
-        else
+        else {
             for (int i = 0; i < 3; i++) {
                 cMessage * duplicate = message->dup();
                 duplicate->setControlInfo(message->getControlInfo()->dup());
                 send(duplicate, "transportLowerOut", i * arrivalGate->getVectorSize() + arrivalGate->getIndex());
             }
+            delete message;
+        }
     }
     else if (!strcmp(arrivalGateName, "transportLowerIn"))
         send(message, "transportUpperOut", arrivalGate->getIndex() % gateSize("transportUpperOut"));

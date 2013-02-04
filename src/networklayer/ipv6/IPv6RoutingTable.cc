@@ -32,6 +32,11 @@
 Define_Module(IPv6RoutingTable);
 
 
+IPv6Route::~IPv6Route()
+{
+    delete adapter;
+}
+
 std::string IPv6Route::info() const
 {
     std::stringstream out;
@@ -863,5 +868,6 @@ bool IPv6RoutingTable::isOnLinkAddress(const IPv6Address& address)
 
     return false;
 }
+
 #endif /* WITH_xMIPv6 */
 
