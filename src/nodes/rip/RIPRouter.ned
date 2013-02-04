@@ -44,7 +44,7 @@ module RIPRouter extends Router
         rip.udpOut --> udp.appIn++;
         rip.udpIn <-- udp.appOut++;
 
-        udp.ipOut --> networkLayer.udpIn;
-        udp.ipIn <-- networkLayer.udpOut;
+        udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
 }
 
