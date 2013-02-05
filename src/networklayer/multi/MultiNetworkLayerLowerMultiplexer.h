@@ -27,6 +27,7 @@ class MultiNetworkLayerLowerMultiplexer : public cSimpleModule {
 
   protected:
     virtual void handleMessage(cMessage * message);
+    int getProtocolCount();
     int getProtocolIndex(cMessage * message);
 };
 

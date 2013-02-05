@@ -29,9 +29,13 @@ void MultiNetworkLayerLowerMultiplexer::handleMessage(cMessage * message) {
     if (!strcmp(arrivalGateName, "ifUpperIn"))
         send(message, "ifLowerOut", arrivalGate->getIndex() % gateSize("ifLowerOut"));
     else if (!strcmp(arrivalGateName, "ifLowerIn"))
-        send(message, "ifUpperOut", getProtocolIndex(message) * arrivalGate->getVectorSize() + arrivalGate->getIndex());
+        send(message, "ifUpperOut", getProtocolCount() * arrivalGate->getIndex() + getProtocolIndex(message));
     else
         throw cRuntimeError("Unknown arrival gate");
+}
+
+int MultiNetworkLayerLowerMultiplexer::getProtocolCount() {
+    return 3;
 }
 
 int MultiNetworkLayerLowerMultiplexer::getProtocolIndex(cMessage * message) {
