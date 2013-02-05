@@ -111,9 +111,11 @@ void RIPRouting::initialize(int stage)
         usePoisonedSplitHorizon = par("usePoisonedSplitHorizon");
         const char *routingTableName = par("routingTableName");
         ift = InterfaceTableAccess().get();
-        //rt = ModuleAccess<IRoutingTable>(routingTableName).get();
-        rt = ModuleAccess<IPv4RoutingTable>(routingTableName).get()->asGeneric(); // XXX
-        allRipRoutersGroup = rt->getRouterId().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
+        // KLUDGE: simplify this when IPv4RoutingTable implements IRoutingTable
+        cModule * module = findModuleWhereverInNode(routingTableName, this);
+        rt = dynamic_cast<IRoutingTable *>(module);
+        if (!rt && dynamic_cast<IPv4RoutingTable *>(module)) rt = dynamic_cast<IPv4RoutingTable *>(module)->asGeneric();
+        if (!rt && dynamic_cast<IPv6RoutingTable *>(module)) rt = dynamic_cast<IPv6RoutingTable *>(module)->asGeneric();
         updateTimer = new cMessage("RIP-timer");
         triggeredUpdateTimer = new cMessage("RIP-trigger");
         socket.setOutputGate(gate("udpOut"));
@@ -132,7 +134,7 @@ void RIPRouting::initialize(int stage)
         }
     }
     else if (stage == 4) { // interfaces and static routes are already initialized
-
+        allRipRoutersGroup = rt->getRouterId().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
         configureInitialRoutes();
 
         // configure socket

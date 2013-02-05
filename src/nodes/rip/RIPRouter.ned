@@ -31,11 +31,7 @@ module RIPRouter extends Router
     parameters:
         string udpType = default("UDP");
     submodules:
-        rip: RIPRouting {
-            parameters:
-                routingTableName = "routingTable";
-                @display("p=329,87,row");
-        }
+        rip: RIPRouting;
         udp: <udpType> like IUDP {
             @display("p=329,180");
         }
