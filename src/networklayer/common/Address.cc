@@ -24,6 +24,8 @@
 
 IAddressPolicy * Address::getAddressPolicy() const {
     switch (type) {
+        case Address::NONE:
+            throw cRuntimeError("Address contains no value");
         case Address::IPv4:
             return &IPv4AddressPolicy::INSTANCE;
         case Address::IPv6:
@@ -69,6 +71,8 @@ bool Address::tryParse(const char *addr)
 bool Address::isUnspecified() const
 {
     switch (type) {
+        case Address::NONE:
+            return true;
         case Address::IPv4:
             return ipv4.isUnspecified();
         case Address::IPv6:
@@ -87,6 +91,8 @@ bool Address::isUnspecified() const
 bool Address::isUnicast() const
 {
     switch (type) {
+        case Address::NONE:
+            throw cRuntimeError("Address contains no value");
         case Address::IPv4:
             return !ipv4.isMulticast() && !ipv4.isLimitedBroadcastAddress();
         case Address::IPv6:
@@ -105,6 +111,8 @@ bool Address::isUnicast() const
 bool Address::isMulticast() const
 {
     switch (type) {
+        case Address::NONE:
+            throw cRuntimeError("Address contains no value");
         case Address::IPv4:
             return ipv4.isMulticast();
         case Address::IPv6:
@@ -123,6 +131,8 @@ bool Address::isMulticast() const
 bool Address::isBroadcast() const
 {
     switch (type) {
+        case Address::NONE:
+            throw cRuntimeError("Address contains no value");
         case Address::IPv4:
             return ipv4.isLimitedBroadcastAddress();
         case Address::IPv6:
@@ -144,6 +154,8 @@ bool Address::operator<(const Address& address) const
         return type < address.type;
     else {
         switch (type) {
+            case Address::NONE:
+                throw cRuntimeError("Address contains no value");
             case Address::IPv4:
                 return ipv4 < address.ipv4;
             case Address::IPv6:
@@ -166,6 +178,8 @@ bool Address::operator==(const Address& address) const
         return false;
     else {
         switch (type) {
+            case Address::NONE:
+                return true;
             case Address::IPv4:
                 return ipv4 == address.ipv4;
             case Address::IPv6:
@@ -190,6 +204,8 @@ bool Address::operator!=(const Address& address) const
 bool Address::matches(const Address& other, int prefixLength) const
 {
     switch (type) {
+        case Address::NONE:
+            throw cRuntimeError("Address contains no value");
         case Address::IPv4:
             return IPv4Address::maskedAddrAreEqual(ipv4, other.ipv4, IPv4Address::makeNetmask(prefixLength)); //FIXME !!!!!
         case Address::IPv6:
@@ -204,4 +220,3 @@ bool Address::matches(const Address& other, int prefixLength) const
             throw cRuntimeError("Unknown type");
     }
 }
-

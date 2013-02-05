@@ -36,6 +36,7 @@ class INET_API Address
 {
     public:
         enum AddressType {
+            NONE,
             IPv4,
             IPv6,
             MAC,
@@ -51,7 +52,7 @@ class INET_API Address
         ModuleIdAddress moduleId;
         ModulePathAddress modulePath;
     public:
-        Address() : type(IPv4) {}
+        Address() : type(NONE) {}
         Address(const char *str) { tryParse(str); }
         Address(const IPv4Address& addr) {set(addr);}
         Address(const IPv6Address& addr) {set(addr);}
@@ -93,6 +94,8 @@ class INET_API Address
 inline std::ostream& operator<<(std::ostream& os, const Address& address)
 {
     switch (address.getType()) {
+        case Address::NONE:
+            return os << "<none>";
         case Address::IPv4:
             return os << address.toIPv4().str();
         case Address::IPv6:
