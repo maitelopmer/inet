@@ -26,6 +26,8 @@
 #include "IPSocket.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
+#include "GenericNetworkProtocolControlInfo.h"
+#include "IAddressPolicy.h"
 
 #ifdef WITH_IPv4
 #include "ICMPAccess.h"
@@ -302,6 +304,17 @@ void UDP::processUDPPacket(UDPPacket *udpPacket)
         isMulticast = ctrl6->getDestAddr().isMulticast();
         isBroadcast = false;  // IPv6 has no broadcast, just various multicasts
     }
+    else if (dynamic_cast<GenericNetworkProtocolControlInfo *>(ctrl)!=NULL)
+    {
+        GenericNetworkProtocolControlInfo *ctrlGeneric = (GenericNetworkProtocolControlInfo *)ctrl;
+        srcAddr = ctrlGeneric->getSourceAddress();
+        destAddr = ctrlGeneric->getDestinationAddress();
+        interfaceId = ctrlGeneric->getInterfaceId();
+        ttl = ctrlGeneric->getHopLimit();
+        tos = 0; // TODO: ctrlGeneric->getTrafficClass();
+        isMulticast = ctrlGeneric->getDestinationAddress().isMulticast();
+        isBroadcast = false;  // IPv6 has no broadcast, just various multicasts
+    }
     else if (ctrl == NULL)
     {
         error("(%s)%s arrived from lower layer without control info",
@@ -451,6 +464,10 @@ void UDP::processUndeliverablePacket(UDPPacket *udpPacket, cObject *ctrl)
         else
 #endif
             delete udpPacket;
+    }
+    else if (dynamic_cast<GenericNetworkProtocolControlInfo *>(ctrl) != NULL)
+    {
+        delete udpPacket;
     }
     else if (ctrl == NULL)
     {
@@ -733,7 +750,23 @@ void UDP::sendDown(cPacket *appData, const Address& srcAddr, ushort srcPort, con
         send(udpPacket, "ipv6Out");
     }
     else
-        throw cRuntimeError("Unknown address type");
+    {
+        // send to IPv6
+        EV << "Sending app packet " << appData->getName() << endl;
+        IAddressPolicy * addressPolicy = destAddr.getAddressPolicy();
+        INetworkProtocolControlInfo *ipControlInfo = addressPolicy->createNetworkProtocolControlInfo();
+        ipControlInfo->setProtocol(IP_PROT_UDP);
+        ipControlInfo->setSourceAddress(srcAddr);
+        ipControlInfo->setDestinationAddress(destAddr);
+        ipControlInfo->setInterfaceId(interfaceId);
+        //ipControlInfo->setMulticastLoop(multicastLoop);
+        ipControlInfo->setHopLimit(ttl);
+        //ipControlInfo->setTrafficClass(tos);
+        udpPacket->setControlInfo(dynamic_cast<cObject *>(ipControlInfo));
+
+        emit(sentPkSignal, udpPacket);
+        send(udpPacket, "ipOut");
+    }
     numSent++;
 }
 
@@ -832,7 +865,7 @@ void UDP::addMulticastAddressToInterface(InterfaceEntry *ie, const Address& mult
 #endif
     }
     else
-        throw cRuntimeError("Unknown address type");
+        multicastAddr.getAddressPolicy()->joinMulticastGroup(ie, multicastAddr);
 }
 
 void UDP::leaveMulticastGroups(SockDesc *sd, const std::vector<Address>& multicastAddresses)

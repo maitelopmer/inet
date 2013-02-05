@@ -39,7 +39,7 @@ class INET_API IPv6RoutingTableAdapter : public IRoutingTable
         IPv6RoutingTableAdapter(IPv6RoutingTable *routingTable) {rt = routingTable;}
         virtual bool isForwardingEnabled() const {return rt->isRouter();}  //XXX inconsistent names
         virtual bool isMulticastForwardingEnabled() const {return true; /*TODO rt->isMulticastForwardingEnabled();*/}
-        virtual Address getRouterId() const {return Address(); /*TODO rt->getRouterId();*/}
+        virtual Address getRouterId() const {return Address(IPv6Address()); /*TODO rt->getRouterId();*/}
         virtual bool isLocalAddress(const Address& dest) const {return rt->isLocalAddress(dest.toIPv6());}
         virtual bool isLocalBroadcastAddress(const Address& dest) const {return false; /*TODO rt->isLocalBroadcastAddress(dest.toIPv6());*/}
         virtual InterfaceEntry *getInterfaceByAddress(const Address& address) const {return rt->getInterfaceByAddress(address.toIPv6());}

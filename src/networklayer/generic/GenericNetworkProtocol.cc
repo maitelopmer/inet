@@ -187,10 +187,10 @@ void GenericNetworkProtocol::routePacket(GenericDatagram *datagram, const Interf
         const GenericRoute *re = rt->findBestMatchingRoute(destAddr);
 
         // error handling: destination address does not exist in routing table:
-        // notify ICMP, throw packet away and continue
+        // throw packet away and continue
         if (re==NULL)
         {
-            EV << "unroutable, sending ICMP_DESTINATION_UNREACHABLE\n";
+            EV << "unroutable, discarding packet\n";
             numUnroutable++;
             delete datagram;
             return;
@@ -449,7 +449,6 @@ void GenericNetworkProtocol::sendDatagramToOutput(GenericDatagram *datagram, con
     // hop counter check
     if (datagram->getHopLimit() <= 0)
     {
-        // drop datagram, destruction responsibility in ICMP
         EV << "datagram hopLimit reached zero, discarding\n";
         delete datagram;  //TODO stats counter???
         return;
