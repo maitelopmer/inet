@@ -473,8 +473,10 @@ IInterfaceTable *AddressResolver::findInterfaceTableOf(cModule *host)
 IIPv4RoutingTable *AddressResolver::findRoutingTableOf(cModule *host)
 {
 #ifdef WITH_IPv4
-    cModule *mod = host->getSubmodule("routingTable");
-    return dynamic_cast<IIPv4RoutingTable *>(mod);
+    // KLUDGE: TODO: look deeper temporarily
+    IIPv4RoutingTable *rt = dynamic_cast<IIPv4RoutingTable *>(host->getSubmodule("routingTable"));
+    if (!rt) rt = dynamic_cast<IIPv4RoutingTable *>(host->getModuleByPath(".routingTable.ipv4RoutingTable"));
+    return rt;
 #else
     return NULL;
 #endif
@@ -483,8 +485,10 @@ IIPv4RoutingTable *AddressResolver::findRoutingTableOf(cModule *host)
 IPv6RoutingTable *AddressResolver::findRoutingTable6Of(cModule *host)
 {
 #ifdef WITH_IPv6
-    cModule *mod = host->getSubmodule("routingTable6");
-    return dynamic_cast<IPv6RoutingTable *>(mod);
+    // KLUDGE: TODO: look deeper temporarily
+    IPv6RoutingTable *rt = dynamic_cast<IPv6RoutingTable *>(host->getSubmodule("routingTable6"));
+    if (!rt) rt = dynamic_cast<IPv6RoutingTable *>(host->getModuleByPath(".routingTable.ipv6RoutingTable"));
+    return rt;
 #else
     return NULL;
 #endif
