@@ -22,6 +22,8 @@ import inet.networklayer.multi.NetworkDatagramMultiplexer;
 
 moduleinterface IDYMO
 {
+    parameters:
+        @display("i=block/routing");
     gates:
         input ipIn;
         output ipOut;

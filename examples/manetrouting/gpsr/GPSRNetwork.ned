@@ -6,29 +6,9 @@ package inet.examples.manetrouting.gpsr;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.networklayer.routing.gpsr.IGPSR;
-import inet.nodes.inet.WirelessHost;
+import inet.nodes.gpsr.GPSRRouter;
 import inet.world.radio.ChannelControl;
 
-
-//
-// TODO
-//
-module AdhocHost extends WirelessHost
-{
-    parameters:
-        @display("i=device/cellphone");
-        IPForward = true;
-        wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");
-        string gpsrType = default("GPSR");
-    submodules:
-        gpsr: <gpsrType> like IGPSR {
-            @display("p=527,287");
-        }
-    connections:
-        gpsr.ipOut --> networkLayer.transportIn++;
-        gpsr.ipIn <-- networkLayer.transportOut++;
-}
 
 //
 // TODO
@@ -51,7 +31,7 @@ network GPSRNetworkRandom
             parameters:
                 @display("p=50,150");
         }
-        host[numHosts]: AdhocHost {
+        host[numHosts]: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070");
         }
@@ -74,47 +54,47 @@ network GPSRNetworkManual
             parameters:
                 @display("p=50,150");
         }
-        host0: AdhocHost {
+        host0: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=37,300");
         }
-        host1: AdhocHost {
+        host1: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=723,300");
         }
-        host2: AdhocHost {
+        host2: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=185,300");
         }
-        host3: AdhocHost {
+        host3: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=345,300");
         }
-        host4: AdhocHost {
+        host4: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=345,157");
         }
-        host5: AdhocHost {
+        host5: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=346,26");
         }
-        host6: AdhocHost {
+        host6: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=446,26");
         }
-        host7: AdhocHost {
+        host7: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=346,446");
         }
-        host8: AdhocHost {
+        host8: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=345,572");
         }
-        host9: AdhocHost {
+        host9: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=446,572");
         }
-        host10: AdhocHost {
+        host10: GPSRRouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070;p=642,100");
         }

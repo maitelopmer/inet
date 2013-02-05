@@ -23,6 +23,8 @@ import inet.networklayer.multi.NetworkDatagramMultiplexer;
 
 moduleinterface IGPSR
 {
+    parameters:
+        @display("i=block/routing");
     gates:
         input ipIn;
         output ipOut;

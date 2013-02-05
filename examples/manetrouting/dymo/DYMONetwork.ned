@@ -6,29 +6,9 @@ package inet.examples.manetrouting.dymo;
 
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
 import inet.networklayer.ipv4.RoutingTableRecorder;
-import inet.networklayer.routing.dymo.IDYMO;
-import inet.nodes.inet.WirelessHost;
+import inet.nodes.dymo.DYMORouter;
 import inet.world.radio.ChannelControl;
 
-
-//
-// TODO
-//
-module AdhocHost extends WirelessHost
-{
-    parameters:
-        @display("i=device/cellphone");
-        IPForward = true;
-        wlan[*].mgmtType = default("Ieee80211MgmtAdhoc");
-        string dymoType = default("xDYMO");
-    submodules:
-        dymo: <dymoType> like IDYMO {
-            @display("p=527,287");
-        }
-    connections:
-        dymo.ipOut --> networkLayer.transportIn++;
-        dymo.ipIn <-- networkLayer.transportOut++;
-}
 
 //
 // TODO
@@ -51,7 +31,7 @@ network DYMONetwork
             parameters:
                 @display("p=50,150");
         }
-        host[numHosts]: AdhocHost {
+        host[numHosts]: DYMORouter {
             parameters:
                 @display("i=device/pocketpc_s;r=,,#707070");
         }
