@@ -19,7 +19,7 @@
 
 #include "IPvXTrafGen.h"
 
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
 
@@ -50,7 +50,7 @@ void IPvXTrafSink::handleMessage(cMessage *msg)
 
 void IPvXTrafSink::printPacket(cPacket *msg)
 {
-    IPvXAddress src, dest;
+    Address src, dest;
     int protocol = -1;
 
     if (dynamic_cast<IPv4ControlInfo *>(msg->getControlInfo()) != NULL)

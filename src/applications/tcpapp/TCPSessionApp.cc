@@ -16,7 +16,7 @@
 
 #include "ByteArrayMessage.h"
 #include "GenericAppMsg_m.h"
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 
 
 Define_Module(TCPSessionApp);
@@ -187,7 +187,7 @@ void TCPSessionApp::activity()
     waitUntil(tOpen);
 
     socket.readDataTransferModePar(*this);
-    socket.bind(*localAddress ? IPvXAddress(localAddress) : IPvXAddress(), localPort);
+    socket.bind(*localAddress ? Address(localAddress) : Address(), localPort);
 
     EV << "issuing OPEN command\n";
 
@@ -195,7 +195,7 @@ void TCPSessionApp::activity()
         getDisplayString().setTagArg("t", 0, active ? "connecting" : "listening");
 
     if (active)
-        socket.connect(IPvXAddressResolver().resolve(connectAddress), connectPort);
+        socket.connect(AddressResolver().resolve(connectAddress), connectPort);
     else
         socket.listenOnce();
 

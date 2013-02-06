@@ -19,7 +19,7 @@
 
 #include "UDPBasicApp.h"
 #include "UDPControlInfo_m.h"
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 #include "InterfaceTableAccess.h"
 
 
@@ -31,7 +31,7 @@ simsignal_t UDPBasicApp::rcvdPkSignal = SIMSIGNAL_NULL;
 
 void UDPBasicApp::initialize(int stage)
 {
-    // because of IPvXAddressResolver, we need to wait until interfaces are registered,
+    // because of AddressResolver, we need to wait until interfaces are registered,
     // address auto-assignment takes place etc.
     if (stage != 3)
         return;
@@ -52,7 +52,7 @@ void UDPBasicApp::initialize(int stage)
     const char *token;
 
     while ((token = tokenizer.nextToken()) != NULL)
-        destAddresses.push_back(IPvXAddressResolver().resolve(token));
+        destAddresses.push_back(AddressResolver().resolve(token));
 
     socket.setOutputGate(gate("udpOut"));
     socket.bind(localPort);
@@ -105,7 +105,7 @@ void UDPBasicApp::setSocketOptions()
         socket.joinLocalMulticastGroups();
 }
 
-IPvXAddress UDPBasicApp::chooseDestAddr()
+Address UDPBasicApp::chooseDestAddr()
 {
     int k = intrand(destAddresses.size());
     return destAddresses[k];
@@ -124,7 +124,7 @@ cPacket *UDPBasicApp::createPacket()
 void UDPBasicApp::sendPacket()
 {
     cPacket *payload = createPacket();
-    IPvXAddress destAddr = chooseDestAddr();
+    Address destAddr = chooseDestAddr();
 
     emit(sentPkSignal, payload);
     socket.sendTo(payload, destAddr, destPort);

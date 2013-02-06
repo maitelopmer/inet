@@ -19,7 +19,7 @@
 
 #include "IPvXTrafGen.h"
 
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
 
@@ -31,7 +31,7 @@ simsignal_t IPvXTrafGen::sentPkSignal = SIMSIGNAL_NULL;
 
 void IPvXTrafGen::initialize(int stage)
 {
-    // because of IPvXAddressResolver, we need to wait until interfaces are registered,
+    // because of AddressResolver, we need to wait until interfaces are registered,
     // address auto-assignment takes place etc.
     if (stage != 3)
         return;
@@ -50,7 +50,7 @@ void IPvXTrafGen::initialize(int stage)
     cStringTokenizer tokenizer(destAddrs);
     const char *token;
     while ((token = tokenizer.nextToken()) != NULL)
-        destAddresses.push_back(IPvXAddressResolver().resolve(token));
+        destAddresses.push_back(AddressResolver().resolve(token));
 
     packetLengthPar = &par("packetLength");
 
@@ -69,7 +69,7 @@ void IPvXTrafGen::initialize(int stage)
     }
 }
 
-IPvXAddress IPvXTrafGen::chooseDestAddr()
+Address IPvXTrafGen::chooseDestAddr()
 {
     int k = intrand(destAddresses.size());
     return destAddresses[k];
@@ -83,14 +83,14 @@ void IPvXTrafGen::sendPacket()
     cPacket *payload = new cPacket(msgName);
     payload->setByteLength(packetLengthPar->longValue());
 
-    IPvXAddress destAddr = chooseDestAddr();
+    Address destAddr = chooseDestAddr();
     const char *gate;
 
     if (!destAddr.isIPv6())
     {
         // send to IPv4
         IPv4ControlInfo *controlInfo = new IPv4ControlInfo();
-        controlInfo->setDestAddr(destAddr.get4());
+        controlInfo->setDestAddr(destAddr.toIPv4());
         controlInfo->setProtocol(protocol);
         payload->setControlInfo(controlInfo);
         gate = "ipOut";
@@ -99,7 +99,7 @@ void IPvXTrafGen::sendPacket()
     {
         // send to IPv6
         IPv6ControlInfo *controlInfo = new IPv6ControlInfo();
-        controlInfo->setDestAddr(destAddr.get6());
+        controlInfo->setDestAddr(destAddr.toIPv6());
         controlInfo->setProtocol(protocol);
         payload->setControlInfo(controlInfo);
         gate = "ipv6Out";

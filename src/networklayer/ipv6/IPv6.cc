@@ -22,7 +22,7 @@
 #include "IPv6.h"
 
 #include "InterfaceTableAccess.h"
-#include "RoutingTable6Access.h"
+#include "IPv6RoutingTableAccess.h"
 #include "ICMPv6Access.h"
 #include "IPv6NeighbourDiscoveryAccess.h"
 
@@ -49,7 +49,7 @@ void IPv6::initialize()
     QueueBase::initialize();
 
     ift = InterfaceTableAccess().get();
-    rt = RoutingTable6Access().get();
+    rt = IPv6RoutingTableAccess().get();
     nd = IPv6NeighbourDiscoveryAccess().get();
     icmp = ICMPv6Access().get();
 

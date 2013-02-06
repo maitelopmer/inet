@@ -20,7 +20,7 @@
 
 #include "PingApp.h"
 
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 #include "PingPayload_m.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
@@ -40,7 +40,7 @@ void PingApp::initialize(int stage)
 {
     cSimpleModule::initialize(stage);
 
-    // because of IPvXAddressResolver, we need to wait until interfaces are registered,
+    // because of AddressResolver, we need to wait until interfaces are registered,
     // address auto-assignment takes place etc.
     if (stage != 3)
         return;
@@ -91,8 +91,8 @@ void PingApp::handleMessage(cMessage *msg)
         // on first call we need to initialize
         if (sendSeqNo == 0)
         {
-            srcAddr = IPvXAddressResolver().resolve(par("srcAddr"));
-            destAddr = IPvXAddressResolver().resolve(par("destAddr"));
+            srcAddr = AddressResolver().resolve(par("srcAddr"));
+            destAddr = AddressResolver().resolve(par("destAddr"));
             ASSERT(!destAddr.isUnspecified());
 
             EV << "Starting up: dest=" << destAddr << "  src=" << srcAddr << "\n";
@@ -141,14 +141,14 @@ void PingApp::scheduleNextPing(cMessage *timer)
         delete timer;
 }
 
-void PingApp::sendToICMP(cMessage *msg, const IPvXAddress& destAddr, const IPvXAddress& srcAddr, int hopLimit)
+void PingApp::sendToICMP(cMessage *msg, const Address& destAddr, const Address& srcAddr, int hopLimit)
 {
     if (!destAddr.isIPv6())
     {
         // send to IPv4
         IPv4ControlInfo *ctrl = new IPv4ControlInfo();
-        ctrl->setSrcAddr(srcAddr.get4());
-        ctrl->setDestAddr(destAddr.get4());
+        ctrl->setSrcAddr(srcAddr.toIPv4());
+        ctrl->setDestAddr(destAddr.toIPv4());
         ctrl->setTimeToLive(hopLimit);
         msg->setControlInfo(ctrl);
         send(msg, "pingOut");
@@ -157,8 +157,8 @@ void PingApp::sendToICMP(cMessage *msg, const IPvXAddress& destAddr, const IPvXA
     {
         // send to IPv6
         IPv6ControlInfo *ctrl = new IPv6ControlInfo();
-        ctrl->setSrcAddr(srcAddr.get6());
-        ctrl->setDestAddr(destAddr.get6());
+        ctrl->setSrcAddr(srcAddr.toIPv6());
+        ctrl->setDestAddr(destAddr.toIPv6());
         ctrl->setHopLimit(hopLimit);
         msg->setControlInfo(ctrl);
         send(msg, "pingv6Out");
@@ -168,7 +168,7 @@ void PingApp::sendToICMP(cMessage *msg, const IPvXAddress& destAddr, const IPvXA
 void PingApp::processPingResponse(PingPayload *msg)
 {
     // get src, hopCount etc from packet, and print them
-    IPvXAddress src, dest;
+    Address src, dest;
     int msgHopCount = -1;
 
     ASSERT(msg->getOriginatorId() == getId());  // ICMP module error

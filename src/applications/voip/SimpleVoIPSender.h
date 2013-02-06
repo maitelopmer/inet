@@ -22,7 +22,7 @@
 #include <string.h>
 #include "INETDefs.h"
 #include "UDPSocket.h"
-#include "IPvXAddressResolver.h"
+#include "AddressResolver.h"
 
 /**
  * Implements a simple VoIP source. See the NED file for more information.
@@ -52,7 +52,7 @@ class SimpleVoIPSender : public cSimpleModule
     simtime_t timestamp;
     int localPort;
     int destPort;
-    IPvXAddress destAddress;
+    Address destAddress;
     simtime_t stopTime;
 
     void talkspurt(simtime_t dur);

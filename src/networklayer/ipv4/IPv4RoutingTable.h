@@ -34,7 +34,7 @@
 
 #include "INotifiable.h"
 #include "IPv4Address.h"
-#include "IRoutingTable.h"
+#include "IIPv4RoutingTable.h"
 
 class IInterfaceTable;
 class NotificationBoard;
@@ -71,7 +71,7 @@ class RoutingTableParser;
  *
  * @see InterfaceEntry, IPv4InterfaceData, IPv4Route
  */
-class INET_API RoutingTable: public cSimpleModule, public IRoutingTable, protected INotifiable
+class INET_API IPv4RoutingTable: public cSimpleModule, public IIPv4RoutingTable, protected INotifiable
 {
   protected:
     IInterfaceTable *ift; // cached pointer
@@ -136,8 +136,8 @@ class INET_API RoutingTable: public cSimpleModule, public IRoutingTable, protect
     IPv4MulticastRoute *internalRemoveMulticastRoute(IPv4MulticastRoute *entry);
 
   public:
-    RoutingTable();
-    virtual ~RoutingTable();
+    IPv4RoutingTable();
+    virtual ~IPv4RoutingTable();
 
   protected:
     virtual int numInitStages() const  {return 4;}

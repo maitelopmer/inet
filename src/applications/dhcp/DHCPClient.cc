@@ -22,7 +22,7 @@
 #include "IPv4InterfaceData.h"
 #include "ModuleAccess.h"
 #include "NotifierConsts.h"
-#include "RoutingTableAccess.h"
+#include "IPv4RoutingTableAccess.h"
 
 Define_Module(DHCPClient);
 
@@ -92,7 +92,7 @@ void DHCPClient::initialize(int stage)
         }
 
         // get the routing table to update and subscribe it to the blackboard
-        irt = RoutingTableAccess().get();
+        irt = IPv4RoutingTableAccess().get();
 
         // grab the interface mac address
         client_mac_address = ie->getMacAddress();
@@ -597,7 +597,7 @@ cModule *DHCPClient::getContainingNode()
 }
 
 // Overwrite the sendToUDP in order to add the interface to use to allow the packet be routed by the IP stack
-void DHCPClient::sendToUDP(cPacket *msg, int srcPort, const IPvXAddress& destAddr, int destPort)
+void DHCPClient::sendToUDP(cPacket *msg, int srcPort, const Address& destAddr, int destPort)
 {
 
     EV << "Sending packet: ";
