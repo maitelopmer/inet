@@ -24,6 +24,7 @@
 #include "OSPFRouting.h"
 
 #include "InterfaceTableAccess.h"
+#include "IPSocket.h"
 #include "IPv4Address.h"
 #include "IPv4ControlInfo.h"
 #include "IPv4InterfaceData.h"
@@ -69,6 +70,9 @@ void OSPFRouting::initialize(int stage)
             error("Error reading AS configuration from %s", ospfConfig->getSourceLocation());
 
         ospfRouter->addWatches();
+
+        IPSocket ipSocket(gate("ipOut"));
+        ipSocket.registerProtocol(IP_PROT_OSPF);
     }
 }
 

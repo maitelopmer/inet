@@ -100,8 +100,8 @@ module LDP_LSR extends LDP_ROUTER_BASE
                 @display("p=340,305");
         }
     connections allowunconnected:
-        linkStateRouting.ipOut --> networkLayer.ospfIn;
-        linkStateRouting.ipIn <-- networkLayer.ospfOut;
+        linkStateRouting.ipOut --> networkLayer.transportIn++;
+        linkStateRouting.ipIn <-- networkLayer.transportOut++;
 
         ldp.tcpIn <-- tcp.appOut++;
         ldp.tcpOut --> tcp.appIn++;
@@ -109,11 +109,11 @@ module LDP_LSR extends LDP_ROUTER_BASE
         ldp.udpOut --> udp.appIn++;
         ldp.udpIn <-- udp.appOut++;
 
-        udp.ipOut --> networkLayer.udpIn;
-        udp.ipIn <-- networkLayer.udpOut;
+        udp.ipOut --> networkLayer.transportIn++;
+        udp.ipIn <-- networkLayer.transportOut++;
 
-        tcp.ipOut --> networkLayer.tcpIn;
-        tcp.ipIn <-- networkLayer.tcpOut;
+        tcp.ipOut --> networkLayer.transportIn++;
+        tcp.ipIn <-- networkLayer.transportOut++;
 
         for i=0..sizeof(pppg)-1 {
             pppg[i] <--> ppp[i].phys;
@@ -125,4 +125,3 @@ module LDP_LSR extends LDP_ROUTER_BASE
             mpls.netwIn[i] <-- networkLayer.ifOut[i];
         }
 }
-
