@@ -41,6 +41,25 @@ IAddressPolicy * Address::getAddressPolicy() const {
     }
 }
 
+std::string Address::str() const {
+    switch (type) {
+        case Address::NONE:
+            return "<none>";
+        case Address::IPv4:
+            return toIPv4().str();
+        case Address::IPv6:
+            return toIPv6().str();
+        case Address::MAC:
+            return toMAC().str();
+        case Address::MODULEID:
+            return toModuleId().str();
+        case Address::MODULEPATH:
+            return toModulePath().str();
+        default:
+            throw cRuntimeError("Unknown type");
+    }
+}
+
 bool Address::tryParse(const char *addr)
 {
     if (IPv4Address::isWellFormed(addr)) {

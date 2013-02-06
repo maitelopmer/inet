@@ -88,27 +88,12 @@ class INET_API Address
 
         bool matches(const Address& other, int prefixLength) const;
 
-        std::string str() const { return ipv4.str(); }
+        std::string str() const;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Address& address)
 {
-    switch (address.getType()) {
-        case Address::NONE:
-            return os << "<none>";
-        case Address::IPv4:
-            return os << address.toIPv4().str();
-        case Address::IPv6:
-            return os << address.toIPv6().str();
-        case Address::MAC:
-            return os << address.toMAC().str();
-        case Address::MODULEID:
-            return os << address.toModuleId().str();
-        case Address::MODULEPATH:
-            return os << address.toModulePath().str();
-        default:
-            throw cRuntimeError("Unknown type");
-    }
+    return os << address.str();
 }
 
 #endif
