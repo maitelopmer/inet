@@ -20,6 +20,7 @@
 #include "IPvXTrafGen.h"
 
 #include "AddressResolver.h"
+#include "IPSocket.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
 
@@ -34,6 +35,12 @@ void IPvXTrafSink::initialize()
     numReceived = 0;
     WATCH(numReceived);
     rcvdPkSignal = registerSignal("rcvdPk");
+    int protocol = par("protocol");
+
+    IPSocket ipSocket(gate("ipOut"));
+    ipSocket.registerProtocol(protocol);
+    IPSocket ipv6Socket(gate("ipv6Out"));
+    ipv6Socket.registerProtocol(protocol);
 }
 
 void IPvXTrafSink::handleMessage(cMessage *msg)

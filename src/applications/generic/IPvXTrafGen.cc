@@ -20,6 +20,7 @@
 #include "IPvXTrafGen.h"
 
 #include "AddressResolver.h"
+#include "IPSocket.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
 
@@ -58,6 +59,11 @@ void IPvXTrafGen::initialize(int stage)
 
     numSent = 0;
     WATCH(numSent);
+
+    IPSocket ipSocket(gate("ipOut"));
+    ipSocket.registerProtocol(protocol);
+    IPSocket ipv6Socket(gate("ipv6Out"));
+    ipv6Socket.registerProtocol(protocol);
 
     if (destAddresses.empty())
         return;
