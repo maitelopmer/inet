@@ -18,6 +18,7 @@
 package inet.nodes.inet;
 
 import inet.util.PcapRecorder;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.networklayer.ipv4.IPv4RoutingTable;
 import inet.networklayer.common.InterfaceTable;
 import inet.mobility.IMobility;
@@ -66,7 +67,7 @@ module NodeBase
         }
 
         // network layer
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 @display("p=329,287;q=queue");
         }

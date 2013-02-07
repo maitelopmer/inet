@@ -4,7 +4,7 @@ package inet.transport.rtp;
 
 import ned.IdealChannel;
 import inet.transport.udp.UDP;
-import inet.nodes.inet.NetworkLayer;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.networklayer.ipv4.IPv4RoutingTable;
 import inet.networklayer.common.InterfaceTable;
 import inet.linklayer.IWiredNic;
@@ -68,7 +68,7 @@ module RTPHost
                 appIn[2];
                 appOut[2];
         }
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 proxyARP = false;
                 @display("p=202,244");

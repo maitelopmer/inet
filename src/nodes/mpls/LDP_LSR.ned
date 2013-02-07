@@ -13,7 +13,7 @@ package inet.nodes.mpls;
 
 import inet.transport.IUDP;
 import inet.transport.ITCP;
-import inet.nodes.inet.NetworkLayer;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.networklayer.ted.TED;
 import inet.networklayer.ted.LinkStateRouting;
 import inet.networklayer.mpls.MPLS;
@@ -73,7 +73,7 @@ module LDP_LSR extends LDP_ROUTER_BASE
             parameters:
                 @display("p=267,145");
         }
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 @display("p=224,223");
             gates:

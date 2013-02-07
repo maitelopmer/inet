@@ -11,7 +11,7 @@
 //
 package inet.nodes.mpls;
 
-import inet.nodes.inet.NetworkLayer;
+import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.networklayer.ted.TED;
 import inet.networklayer.ted.LinkStateRouting;
 import inet.networklayer.rsvp_te.SimpleClassifier;
@@ -71,7 +71,7 @@ module RSVP_LSR extends RSVP_ROUTER_BASE
             parameters:
                 @display("p=330,67");
         }
-        networkLayer: NetworkLayer {
+        networkLayer: IPv4NetworkLayer {
             parameters:
                 @display("p=192,195");
             gates:
