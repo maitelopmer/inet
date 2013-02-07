@@ -18,22 +18,19 @@
 #ifndef __INET_IP_H
 #define __INET_IP_H
 
+#include <omnetpp.h>
 #include "INETDefs.h"
-
+#include "INetfilter.h"
 #include "ICMPAccess.h"
 #include "IPv4FragBuf.h"
 #include "ProtocolMap.h"
 #include "QueueBase.h"
-
-#ifdef WITH_MANET
-#include "ControlManetRouting_m.h"
-#endif
+#include "IPv4Datagram.h"
 
 
 class ARPPacket;
 class ICMPMessage;
 class IInterfaceTable;
-class IPv4Datagram;
 class IIPv4RoutingTable;
 
 // ICMP type 2, code 4: fragmentation needed, but don't-fragment bit set
@@ -43,14 +40,30 @@ const int ICMP_FRAGMENTATION_ERROR_CODE = 4;
 /**
  * Implements the IPv4 protocol.
  */
-class INET_API IPv4 : public QueueBase
+class INET_API IPv4 : public QueueBase, public INetfilter
 {
+  public:
+    /**
+     * Represents an IPv4Datagram, queued by a Hook
+     */
+    class QueuedDatagramForHook {
+      public:
+        QueuedDatagramForHook(IPv4Datagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry* outIE, const IPv4Address& nextHopAddr, IHook::Type hookType) :
+                datagram(datagram), inIE(inIE), outIE(outIE), nextHopAddr(nextHopAddr), hookType(hookType) {}
+        virtual ~QueuedDatagramForHook() {}
+
+        IPv4Datagram* datagram;
+        const InterfaceEntry* inIE;
+        const InterfaceEntry* outIE;
+        IPv4Address nextHopAddr;
+        const IHook::Type hookType;
+    };
+
   protected:
     IIPv4RoutingTable *rt;
     IInterfaceTable *ift;
     ICMPAccess icmpAccess;
     cGate *queueOutGate; // the most frequently used output gate
-    bool manetRouting;
 
     // config
     int defaultTimeToLive;
@@ -71,13 +84,18 @@ class INET_API IPv4 : public QueueBase
     int numUnroutable;
     int numForwarded;
 
+    // hooks
+    typedef std::multimap<int, IHook*> HookList;
+    HookList hooks;
+    typedef std::list<QueuedDatagramForHook> DatagramQueueForHooks;
+    DatagramQueueForHooks queuedDatagramsForHooks;
 
   protected:
     // utility: look up interface from getArrivalGate()
-    virtual InterfaceEntry *getSourceInterfaceFrom(cPacket *msg);
+    virtual const InterfaceEntry *getSourceInterfaceFrom(cPacket *msg);
 
     // utility: look up route to the source of the datagram and return its interface
-    virtual InterfaceEntry *getShortestPathInterfaceToSource(IPv4Datagram *datagram);
+    virtual const InterfaceEntry *getShortestPathInterfaceToSource(IPv4Datagram *datagram);
 
     // utility: show current statistics above the icon
     virtual void updateDisplayString();
@@ -98,13 +116,22 @@ class INET_API IPv4 : public QueueBase
      * Handle IPv4Datagram messages arriving from lower layer.
      * Decrements TTL, then invokes routePacket().
      */
-    virtual void handlePacketFromNetwork(IPv4Datagram *datagram, InterfaceEntry *fromIE);
+    virtual void handlePacketFromNetwork(IPv4Datagram *datagram, const InterfaceEntry *fromIE);
+
+    // called after PREROUTING Hook (used for reinject, too)
+    virtual void preroutingFinish(IPv4Datagram *datagram, const InterfaceEntry *fromIE, const InterfaceEntry *destIE, IPv4Address nextHopAddr);
 
     /**
      * Handle messages (typically packets to be send in IPv4) from transport or ICMP.
      * Invokes encapsulate(), then routePacket().
      */
     virtual void handleMessageFromHL(cPacket *msg);
+
+    /**
+     * Routes and sends datagram received from higher layers.
+     * Invokes datagramLocalOutHook(), then routePacket().
+     */
+    virtual void datagramLocalOut(IPv4Datagram* datagram, const InterfaceEntry* destIE, IPv4Address nextHopAddr);
 
     /**
      * Handle incoming ARP packets by sending them over "queueOut" to ARP.
@@ -120,23 +147,26 @@ class INET_API IPv4 : public QueueBase
      * Performs unicast routing. Based on the routing decision, it sends the
      * datagram through the outgoing interface.
      */
-    virtual void routeUnicastPacket(IPv4Datagram *datagram, InterfaceEntry *destIE, IPv4Address nextHopAddr);
+    virtual void routeUnicastPacket(IPv4Datagram *datagram, const InterfaceEntry *fromIE, const InterfaceEntry *destIE, IPv4Address requestedNextHopAddress);
+
+    // called after FORWARD Hook (used for reinject, too)
+    void routeUnicastPacketFinish(IPv4Datagram *datagram, const InterfaceEntry *fromIE, const InterfaceEntry *destIE, IPv4Address nextHopAddr);
 
     /**
      * Broadcasts the datagram on the specified interface.
      * When destIE is NULL, the datagram is broadcasted on each interface.
      */
-    virtual void routeLocalBroadcastPacket(IPv4Datagram *datagram, InterfaceEntry *destIE);
+    virtual void routeLocalBroadcastPacket(IPv4Datagram *datagram, const InterfaceEntry *destIE);
 
     /**
      * Determines the output interface for the given multicast datagram.
      */
-    virtual InterfaceEntry *determineOutgoingInterfaceForMulticastDatagram(IPv4Datagram *datagram, InterfaceEntry *multicastIFOption);
+    virtual const InterfaceEntry *determineOutgoingInterfaceForMulticastDatagram(IPv4Datagram *datagram, const InterfaceEntry *multicastIFOption);
 
     /**
      * Forwards packets to all multicast destinations, using fragmentAndSend().
      */
-    virtual void forwardMulticastPacket(IPv4Datagram *datagram, InterfaceEntry *fromIE);
+    virtual void forwardMulticastPacket(IPv4Datagram *datagram, const InterfaceEntry *fromIE);
 
     /**
      * Perform reassembly of fragmented datagrams, then send them up to the
@@ -144,52 +174,32 @@ class INET_API IPv4 : public QueueBase
      */
     virtual void reassembleAndDeliver(IPv4Datagram *datagram);
 
+    // called after LOCAL_IN Hook (used for reinject, too)
+    virtual void reassembleAndDeliverFinish(IPv4Datagram *datagram);
+
     /**
      * Decapsulate and return encapsulated packet after attaching IPv4ControlInfo.
      */
     virtual cPacket *decapsulate(IPv4Datagram *datagram);
 
     /**
+     * Call PostRouting Hook and continue with fragmentAndSend() if accepted
+     */
+    virtual void fragmentPostRouting(IPv4Datagram *datagram, const InterfaceEntry *ie, IPv4Address nextHopAddr);
+
+    /**
      * Fragment packet if needed, then send it to the selected interface using
      * sendDatagramToOutput().
      */
-    virtual void fragmentAndSend(IPv4Datagram *datagram, InterfaceEntry *ie, IPv4Address nextHopAddr);
+    virtual void fragmentAndSend(IPv4Datagram *datagram, const InterfaceEntry *ie, IPv4Address nextHopAddr);
 
     /**
      * Last TTL check, then send datagram on the given interface.
      */
-    virtual void sendDatagramToOutput(IPv4Datagram *datagram, InterfaceEntry *ie, IPv4Address nextHopAddr);
-
-#ifdef WITH_MANET
-    /**
-     * Sends a MANET_ROUTE_UPDATE packet to Manet. The datagram is
-     * not transmitted, only its source and destination address is used.
-     * About DSR datagrams no update message is sent.
-     */
-    virtual void sendRouteUpdateMessageToManet(IPv4Datagram *datagram);
-
-    /**
-     * Handle message.
-     */
-    virtual void handleMessage(cMessage *msg);
-
-    /**
-     * Sends a MANET_ROUTE_NOROUTE packet to Manet. The packet
-     * will encapsulate the given datagram, so this method takes
-     * ownership.
-     * DSR datagrams are transmitted as they are, i.e. without
-     * encapsulation. (?)
-     */
-    virtual void sendNoRouteMessageToManet(IPv4Datagram *datagram);
-
-    /**
-     * Sends a packet to the Manet module.
-     */
-    virtual void sendToManet(cPacket *packet);
-#endif
+    virtual void sendDatagramToOutput(IPv4Datagram *datagram, const InterfaceEntry *ie, IPv4Address nextHopAddr);
 
   public:
-    IPv4() {}
+    IPv4() { rt = NULL; ift = NULL; queueOutGate = NULL; }
 
   protected:
     /**
@@ -198,11 +208,63 @@ class INET_API IPv4 : public QueueBase
     virtual void initialize();
 
     /**
+     * Handle message.
+     */
+    virtual void handleMessage(cMessage *msg);
+
+    /**
      * Processing of IPv4 datagrams. Called when a datagram reaches the front
      * of the queue.
      */
     virtual void endService(cPacket *msg);
+
+    // NetFilter functions:
+  protected:
+    /**
+     * called before a packet arriving from the network is routed
+     */
+    IHook::Result datagramPreRoutingHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet arriving from the network is delivered via the network
+     */
+    IHook::Result datagramForwardHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet is delivered via the network
+     */
+    IHook::Result datagramPostRoutingHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet arriving from the network is delivered locally
+     */
+    IHook::Result datagramLocalInHook(INetworkDatagram* datagram, const InterfaceEntry* inIE);
+
+    /**
+     * called before a packet arriving locally is delivered
+     */
+    IHook::Result datagramLocalOutHook(INetworkDatagram* datagram, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+  public:
+    /**
+     * registers a Hook to be executed during datagram processing
+     */
+    virtual void registerHook(int priority, IHook* hook);
+
+    /**
+     * unregisters a Hook to be executed during datagram processing
+     */
+    virtual void unregisterHook(int priority, IHook* hook);
+
+    /**
+     * drop a previously queued datagram
+     */
+    void dropQueuedDatagram(const INetworkDatagram * datagram);
+
+    /**
+     * re-injects a previously queued datagram
+     */
+    void reinjectQueuedDatagram(const INetworkDatagram * datagram);
 };
 
 #endif
-
