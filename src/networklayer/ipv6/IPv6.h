@@ -40,6 +40,23 @@ class ICMPv6Message;
  */
 class INET_API IPv6 : public QueueBase, public INetfilter
 {
+  public:
+    /**
+    * Represents an IPv4Datagram, queued by a Hook
+    */
+    class QueuedDatagramForHook {
+      public:
+        QueuedDatagramForHook(IPv6Datagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry* outIE, const IPv6Address& nextHopAddr, IHook::Type hookType) :
+              datagram(datagram), inIE(inIE), outIE(outIE), nextHopAddr(nextHopAddr), hookType(hookType) {}
+        virtual ~QueuedDatagramForHook() {}
+
+        IPv6Datagram* datagram;
+        const InterfaceEntry* inIE;
+        const InterfaceEntry* outIE;
+        IPv6Address nextHopAddr;
+        const IHook::Type hookType;
+    };
+
   protected:
     IInterfaceTable *ift;
     IPv6RoutingTable *rt;
@@ -69,11 +86,17 @@ class INET_API IPv6 : public QueueBase, public INetfilter
     {
       public:
         IPv6Datagram* datagram;
-        InterfaceEntry* ie;
+        const InterfaceEntry *ie;
         MACAddress macAddr;
         bool fromHL;
     };
 #endif /* WITH_xMIPv6 */
+
+    // netfilter hook variables
+    typedef std::multimap<int, IHook*> HookList;
+    HookList hooks;
+    typedef std::list<QueuedDatagramForHook> DatagramQueueForHooks;
+    DatagramQueueForHooks queuedDatagramsForHooks;
 
   protected:
     // utility: look up interface from getArrivalGate()
@@ -92,12 +115,14 @@ class INET_API IPv6 : public QueueBase, public INetfilter
      * Decrements TTL, then invokes routePacket().
      */
     virtual void handleDatagramFromNetwork(IPv6Datagram *datagram);
+    virtual void preroutingFinish(IPv6Datagram *datagram, const InterfaceEntry *fromIE, const InterfaceEntry *destIE, IPv6Address nextHopAddr);
 
     /**
      * Handle messages (typically packets to be send in IPv6) from transport or ICMP.
      * Invokes encapsulate(), then routePacket().
      */
     virtual void handleMessageFromHL(cPacket *msg);
+    virtual void datagramLocalOut(IPv6Datagram* datagram, const InterfaceEntry* destIE, IPv6Address requestedNextHopAddress);
 
     /**
      * Handle incoming ICMP messages.
@@ -110,18 +135,18 @@ class INET_API IPv6 : public QueueBase, public INetfilter
      * to routeMulticastPacket() for multicast packets, or drops the packet if
      * it's unroutable or forwarding is off.
      */
-    virtual void routePacket(IPv6Datagram *datagram, InterfaceEntry *destIE, bool fromHL);
+    virtual void routePacket(IPv6Datagram *datagram, const InterfaceEntry *destIE, IPv6Address requestedNextHopAddress, bool fromHL);
 
     /**
      * Forwards packets to all multicast destinations, using fragmentAndSend().
      */
-    virtual void routeMulticastPacket(IPv6Datagram *datagram, InterfaceEntry *destIE, InterfaceEntry *fromIE, bool fromHL);
+    virtual void routeMulticastPacket(IPv6Datagram *datagram, const InterfaceEntry *destIE, const InterfaceEntry *fromIE, bool fromHL);
 
     /**
      * Performs fragmentation if needed, and sends the original datagram or the fragments
      * through the specified interface.
      */
-    virtual void fragmentAndSend(IPv6Datagram *datagram, InterfaceEntry *ie, const MACAddress &nextHopAddr, bool fromHL);
+    virtual void fragmentAndSend(IPv6Datagram *datagram, const InterfaceEntry *destIE, const MACAddress &nextHopAddr, bool fromHL);
     /**
      * Perform reassembly of fragmented datagrams, then send them up to the
      * higher layers using sendToHL().
@@ -136,16 +161,43 @@ class INET_API IPv6 : public QueueBase, public INetfilter
     /**
      * Last hoplimit check, then send datagram on the given interface.
      */
-    virtual void sendDatagramToOutput(IPv6Datagram *datagram, InterfaceEntry *ie, const MACAddress& macAddr);
+    virtual void sendDatagramToOutput(IPv6Datagram *datagram, const InterfaceEntry *destIE, const MACAddress& macAddr);
+
+    // NetFilter functions:
+  protected:
+    /**
+     * called before a packet arriving from the network is routed
+     */
+    IHook::Result datagramPreRoutingHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet arriving from the network is delivered via the network
+     */
+    IHook::Result datagramForwardHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet is delivered via the network
+     */
+    IHook::Result datagramPostRoutingHook(INetworkDatagram* datagram, const InterfaceEntry* inIE, const InterfaceEntry*& outIE, Address& nextHopAddr);
+
+    /**
+     * called before a packet arriving from the network is delivered locally
+     */
+    IHook::Result datagramLocalInHook(INetworkDatagram* datagram, const InterfaceEntry* inIE);
+
+    /**
+     * called before a packet arriving locally is delivered
+     */
+    IHook::Result datagramLocalOutHook(INetworkDatagram* datagram, const InterfaceEntry*& outIE, Address& nextHopAddr);
 
   public:
     IPv6() {}
 
-    // TODO:
-    virtual void registerHook(int priority, IHook * hook) { }
-    virtual void unregisterHook(int priority, IHook * hook) { }
-    virtual void dropQueuedDatagram(const INetworkDatagram * daragram) { }
-    virtual void reinjectQueuedDatagram(const INetworkDatagram * datagram) { }
+    // Netfilter:
+    virtual void registerHook(int priority, IHook * hook);
+    virtual void unregisterHook(int priority, IHook * hook);
+    virtual void dropQueuedDatagram(const INetworkDatagram * daragram);
+    virtual void reinjectQueuedDatagram(const INetworkDatagram * datagram);
 
   protected:
     /**
@@ -166,6 +218,7 @@ class INET_API IPv6 : public QueueBase, public INetfilter
 
     /**
      * Determines the correct interface for the specified destination address.
+     * The nextHop and interfaceId are output parameter.
      */
     bool determineOutputInterface(const IPv6Address& destAddress, IPv6Address& nextHop, int& interfaceId,
             IPv6Datagram* datagram);
