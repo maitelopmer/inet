@@ -997,3 +997,11 @@ INetfilter::IHook::Result IPv4::datagramLocalOutHook(INetworkDatagram* datagram,
     }
     return INetfilter::IHook::ACCEPT;
 }
+
+void IPv4::sendOnTransPortOutGateByProtocolId(cPacket *packet, int protocolId)
+{
+    int gateindex = mapping.getOutputGateForProtocol(protocolId);
+    cGate* outGate = gate("transportOut", gateindex);
+    send(packet, outGate);
+}
+

@@ -38,11 +38,10 @@ class INET_API ManetNetfilterHook : public INetfilter::IHook
     IPv4 *ipLayer;      // IPv4 module
     IInterfaceTable *ift;
     IRoutingTable *rt;
-    int gateIndex;      // gateindex for manet protocol on transportOut gate in network module
     bool isReactive;    // true if it's a reactive routing
 
   public:
-    ManetNetfilterHook() : module(NULL), ipLayer(NULL), gateIndex(-1), isReactive(false) {}
+    ManetNetfilterHook() : module(NULL), ipLayer(NULL), isReactive(false) {}
 
   protected:
     void initHook(cModule* module);

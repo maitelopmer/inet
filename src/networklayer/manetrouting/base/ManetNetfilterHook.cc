@@ -40,9 +40,6 @@ void ManetNetfilterHook::initHook(cModule* _module)
     cProperties *props = module->getProperties();
     isReactive = props && props->getAsBool("reactive");
 
-    ProtocolMapping mapping;
-    mapping.parseProtocolMapping(ipLayer->par("protocolMapping"));
-    gateIndex = mapping.getOutputGateForProtocol(IP_PROT_MANET);
     ipLayer->registerHook(0, this);
 }
 
@@ -152,7 +149,7 @@ void ManetNetfilterHook::sendNoRouteMessageToManet(INetworkDatagram *datagram)
 
 void ManetNetfilterHook::sendToManet(cPacket *packet)
 {
-    ipLayer->send(packet, "transportOut", gateIndex);
+    ipLayer->sendOnTransPortOutGateByProtocolId(packet, IP_PROT_MANET);
 }
 
 bool ManetNetfilterHook::checkPacketUnroutable(INetworkDatagram* datagram, const InterfaceEntry* outIE)
