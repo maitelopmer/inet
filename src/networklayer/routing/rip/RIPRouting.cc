@@ -111,10 +111,10 @@ void RIPRouting::initialize(int stage)
 {
     if (stage == 0) {
         usePoisonedSplitHorizon = par("usePoisonedSplitHorizon");
-        const char *routingTableName = par("routingTableName");
+        const char *routingTableModule = par("routingTableModule");
         ift = InterfaceTableAccess().get();
         // KLUDGE: simplify this when IPv4RoutingTable implements IRoutingTable
-        cModule * module = findModuleWhereverInNode(routingTableName, this);
+        cModule * module = findModuleWhereverInNode(routingTableModule, this);
         rt = dynamic_cast<IRoutingTable *>(module);
         if (!rt && dynamic_cast<IPv4RoutingTable *>(module)) rt = dynamic_cast<IPv4RoutingTable *>(module)->asGeneric();
         if (!rt && dynamic_cast<IPv6RoutingTable *>(module)) rt = dynamic_cast<IPv6RoutingTable *>(module)->asGeneric();
