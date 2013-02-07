@@ -123,6 +123,7 @@ class INET_API RIPRouting : public cSimpleModule, protected INotifiable
     void addLocalInterfaceRoute(IRoute *route);
     void addDefaultRoute(IRoute *route);
     void addStaticRoute(IRoute *route);
+    std::string getHostName();
   protected:
     virtual int numInitStages() const  {return 5;}
     virtual void initialize(int stage);
