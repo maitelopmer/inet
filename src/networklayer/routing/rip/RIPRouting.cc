@@ -30,6 +30,8 @@
 
 Define_Module(RIPRouting);
 
+#define RIP_EV EV << "RIP at " << getHostName() << " "
+
 // XXX temporarily
 inline Address netmask(const Address &addrType, int prefixLength)
 {
@@ -292,14 +294,14 @@ void RIPRouting::handleMessage(cMessage *msg)
     }
     else if (msg->getKind() == UDP_I_ERROR)
     {
-        EV << "Ignoring UDP error report\n";
+        RIP_EV << "Ignoring UDP error report\n";
         delete msg;
     }
 }
 
 void RIPRouting::processRegularUpdate()
 {
-    EV << "RIP: sending updates on all interfaces\n";
+    RIP_EV << "sending updates on all interfaces\n";
     for (InterfaceVector::iterator it = ripInterfaces.begin(); it != ripInterfaces.end(); ++it)
         sendRoutes(allRipRoutersGroup, RIP_UDP_PORT, it->ie, false);
 
@@ -308,7 +310,7 @@ void RIPRouting::processRegularUpdate()
 
 void RIPRouting::processTriggeredUpdate()
 {
-    EV << "RIP: sending triggered updates on all interfaces.";
+    RIP_EV << "sending triggered updates on all interfaces.\n";
     for (InterfaceVector::iterator it = ripInterfaces.begin(); it != ripInterfaces.end(); ++it)
         sendRoutes(allRipRoutersGroup, RIP_UDP_PORT, it->ie, true);
 
@@ -323,13 +325,13 @@ void RIPRouting::processRequest(RIPPacket *packet)
     int numEntries = packet->getEntryArraySize();
     if (numEntries == 0)
     {
-        EV << "RIP: received empty request, ignoring.\n";
+        RIP_EV << "received empty request, ignoring.\n";
         delete packet;
         return;
     }
 
     UDPDataIndication *ctrlInfo = check_and_cast<UDPDataIndication*>(packet->removeControlInfo());
-    EV << "RIP: received request from " << ctrlInfo->getSrcAddr() << "\n";
+    RIP_EV << "received request from " << ctrlInfo->getSrcAddr() << "\n";
 
     for (int i = 0; i < numEntries; ++i)
     {
@@ -447,7 +449,7 @@ void RIPRouting::processResponse(RIPPacket *packet)
     bool isValid = isValidResponse(packet);
     if (!isValid)
     {
-        EV << "RIP: dropping invalid response.\n";
+        RIP_EV << "dropping invalid response.\n";
         delete packet;
         return;
     }
@@ -456,12 +458,12 @@ void RIPRouting::processResponse(RIPPacket *packet)
     RIPInterfaceEntry *incomingIe = findInterfaceEntryById(ctrlInfo->getInterfaceId());
     if (!incomingIe)
     {
-        EV << "RIP: dropping unexpected RIP response.\n";
+        RIP_EV << "dropping unexpected RIP response.\n";
         delete packet;
         return;
     }
 
-    EV << "RIP: RIP response received from " << ctrlInfo->getSrcAddr() << "\n";
+    RIP_EV << "response received from " << ctrlInfo->getSrcAddr() << "\n";
     int numEntries = packet->getEntryArraySize();
     for (int i = 0; i < numEntries; ++i) {
         RIPEntry &entry = packet->getEntry(i);
@@ -494,21 +496,21 @@ bool RIPRouting::isValidResponse(RIPPacket *packet)
     // check that received from RIP_UDP_PORT
     if (ctrlInfo->getSrcPort() != RIP_UDP_PORT)
     {
-        EV << "RIP: source port is not " << RIP_UDP_PORT << "\n";
+        RIP_EV << "source port is not " << RIP_UDP_PORT << "\n";
         return false;
     }
 
     // check that source is on a directly connected network
     if (!isNeighbourAddress(ctrlInfo->getSrcAddr()))
     {
-        EV << "RIP: source is not directly connected " << ctrlInfo->getSrcAddr() << "\n";
+        RIP_EV << "source is not directly connected " << ctrlInfo->getSrcAddr() << "\n";
         return false;
     }
 
     // check that it is not our response (received own multicast message)
     if (rt->isLocalAddress(ctrlInfo->getSrcAddr()))
     {
-        EV << "RIP: received own response\n";
+        RIP_EV << "received own response\n";
         return false;
     }
 
@@ -521,7 +523,7 @@ bool RIPRouting::isValidResponse(RIPPacket *packet)
         // check that metric is in range [1,16]
         if (entry.metric < 1 || entry.metric > RIP_INFINITE_METRIC)
         {
-            EV << "RIP: received metric is not in the [1," << RIP_INFINITE_METRIC << "] range.\n";
+            RIP_EV << "received metric is not in the [1," << RIP_INFINITE_METRIC << "] range.\n";
             return false;
         }
 
@@ -529,7 +531,7 @@ bool RIPRouting::isValidResponse(RIPPacket *packet)
         // TODO exclude 0.x.x.x, 127.x.x.x too
         if (!entry.address.isUnicast())
         {
-            EV << "RIP: destination address of an entry is not unicast: " << entry.address << "\n";
+            RIP_EV << "destination address of an entry is not unicast: " << entry.address << "\n";
             return false;
         }
     }
@@ -766,4 +768,9 @@ void RIPRouting::addDefaultRoute(IRoute *route)
 void RIPRouting::addStaticRoute(IRoute *route)
 {
     ripRoutes.push_back(new RIPRoute(route, RIPRoute::RIP_ROUTE_STATIC, 1));
+}
+
+std::string RIPRouting::getHostName() {
+    // TODO: this is fragile
+    return getParentModule()->getFullName();
 }
