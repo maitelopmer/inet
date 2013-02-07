@@ -44,7 +44,7 @@ void IPv4::initialize()
     QueueBase::initialize();
 
     ift = InterfaceTableAccess().get();
-    rt = check_and_cast<IIPv4RoutingTable *>(findModuleWhereverInNode(par("routingTableModuleName"), this));
+    rt = check_and_cast<IIPv4RoutingTable *>(findModuleWhereverInNode(par("routingTableModule"), this));
     arp = ARPCacheAccess().get();
 
     arpInGate = gate("arpIn");
