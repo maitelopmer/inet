@@ -26,6 +26,8 @@ import inet.linklayer.IWirelessNic;
 import inet.linklayer.IWiredNic;
 import inet.linklayer.IExternalNic;
 import inet.base.NotificationBoard;
+import inet.networklayer.contract.INetworkLayer;
+import inet.networklayer.contract.IRoutingTable;
 
 
 //
@@ -47,6 +49,8 @@ module NodeBase
         int numRadios = default(0);               // the number of radios in the router. by default no wireless
         int numPcapRecorders = default(0); // no of PcapRecorders.
         string mobilityType = default(numRadios > 0 ? "StationaryMobility" : "");
+        string networkLayerType = default("IPv4NetworkLayer");
+        string routingTableType = default("IPv4RoutingTable");
         string routingFile = default("");
         bool IPForward = default(true);
         bool forwardMulticast = default(false);
@@ -67,17 +71,15 @@ module NodeBase
         }
 
         // network layer
-        networkLayer: IPv4NetworkLayer {
+        networkLayer: <networkLayerType> like INetworkLayer {
             parameters:
                 @display("p=329,287;q=queue");
         }
 
-        routingTable: IPv4RoutingTable {
+		// routing table
+        routingTable: <routingTableType> like IRoutingTable {
             parameters:
                 @display("p=53,225;is=s");
-                IPForward = IPForward;
-                forwardMulticast = forwardMulticast;
-                routingFile = routingFile;
         }
 
         // linklayer
