@@ -596,20 +596,21 @@ void IPv4::reassembleAndDeliverFinish(IPv4Datagram *datagram)
     }
     else
     {
-        // JcM Fix: check if the transportOut port are connected, otherwise
-        // discard the packet
-        int gateindex = mapping.getOutputGateForProtocol(protocol);
+        int gateindex = mapping.findOutputGateForProtocol(protocol);
+        // check if the transportOut port are connected, otherwise discard the packet
+        if (gateindex >= 0)
+        {
+            cGate* outGate = gate("transportOut", gateindex);
+            if (outGate->isPathOK())
+            {
+                send(decapsulate(datagram), outGate);
+                numLocalDeliver++;
+                return;
+            }
+        }
 
-        if (gate("transportOut", gateindex)->isPathOK())
-        {
-            send(decapsulate(datagram), "transportOut", gateindex);
-            numLocalDeliver++;
-        }
-        else
-        {
-            EV << "L3 Protocol not connected. discarding packet" << endl;
-            icmpAccess.get()->sendErrorMessage(datagram, ICMP_DESTINATION_UNREACHABLE, ICMP_DU_PROTOCOL_UNREACHABLE);
-        }
+        EV << "L3 Protocol not connected. discarding packet" << endl;
+        icmpAccess.get()->sendErrorMessage(datagram, ICMP_DESTINATION_UNREACHABLE, ICMP_DU_PROTOCOL_UNREACHABLE);
     }
 }
 
