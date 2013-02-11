@@ -19,8 +19,6 @@
 
 #include "IAddressPolicy.h"
 #include "InterfaceTableAccess.h"
-#include "IPv4RoutingTable.h" // XXX temporarily
-#include "IPv6RoutingTable.h" // XXX temporarily
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
 #include "UDP.h"
@@ -65,9 +63,9 @@ std::string RIPRoute::info() const
 
     if (route)
     {
-        const Address &dest = route->getDestination();
+        const Address &dest = route->getDestinationAsGeneric();
         int prefixLength = route->getPrefixLength();
-        const Address &gateway = route->getNextHop();
+        const Address &gateway = route->getNextHopAsGeneric();
         InterfaceEntry *interfacePtr = route->getInterface();
         out << "dest:"; if (dest.isUnspecified()) out << "*  "; else out << dest << "  ";
         out << "prefix:" << prefixLength << "  ";
@@ -113,11 +111,7 @@ void RIPRouting::initialize(int stage)
         usePoisonedSplitHorizon = par("usePoisonedSplitHorizon");
         const char *routingTableModule = par("routingTableModule");
         ift = InterfaceTableAccess().get();
-        // KLUDGE: simplify this when IPv4RoutingTable implements IRoutingTable
-        cModule * module = findModuleWhereverInNode(routingTableModule, this);
-        rt = dynamic_cast<IRoutingTable *>(module);
-        if (!rt && dynamic_cast<IPv4RoutingTable *>(module)) rt = dynamic_cast<IPv4RoutingTable *>(module)->asGeneric();
-        if (!rt && dynamic_cast<IPv6RoutingTable *>(module)) rt = dynamic_cast<IPv6RoutingTable *>(module)->asGeneric();
+        rt = dynamic_cast<IRoutingTable *>(findModuleWhereverInNode(routingTableModule, this));
         updateTimer = new cMessage("RIP-timer");
         triggeredUpdateTimer = new cMessage("RIP-trigger");
         socket.setOutputGate(gate("udpOut"));
@@ -136,7 +130,7 @@ void RIPRouting::initialize(int stage)
         }
     }
     else if (stage == 4) { // interfaces and static routes are already initialized
-        allRipRoutersGroup = rt->getRouterId().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
+        allRipRoutersGroup = rt->getRouterIdAsGeneric().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
         configureInitialRoutes();
 
         // configure socket
@@ -171,7 +165,7 @@ void RIPRouting::configureInitialRoutes()
             addLocalInterfaceRoute(route);
         else if (isDefaultRoute(route))
             addDefaultRoute(route);
-        else if (!route->getDestination().isMulticast())
+        else if (!route->getDestinationAsGeneric().isMulticast())
             addStaticRoute(route);
     }
 }
@@ -405,7 +399,7 @@ void RIPRouting::sendRoutes(const Address &address, int port, InterfaceEntry *ie
         // fill next entry
         RIPEntry &entry = packet->getEntry(k++);
         entry.addressFamilyId = RIP_AF_INET;
-        entry.address = route->getDestination();
+        entry.address = route->getDestinationAsGeneric();
         entry.subnetMask = netmask(entry.address, route->getPrefixLength());
         entry.nextHop = unspecifiedAddress(allRipRoutersGroup); //route->getNextHop() if local ?
         entry.routeTag = ripRoute->tag;
@@ -545,7 +539,7 @@ RIPRoute *RIPRouting::findRoute(const Address &destination, const Address &subne
     for (RouteVector::iterator it = ripRoutes.begin(); it != ripRoutes.end(); ++it)
     {
         IRoute *route = (*it)->route;
-        if (route && route->getDestination() == destination && route->getPrefixLength() == prefixLen)
+        if (route && route->getDestinationAsGeneric() == destination && route->getPrefixLength() == prefixLen)
             return *it;
     }
     return NULL;
