@@ -25,6 +25,7 @@
 
 #include "InterfaceTable.h"
 #include "NotifierConsts.h"
+#include "GenericNetworkProtocolInterfaceData.h"
 
 #ifdef WITH_IPv4
 #include "IPv4InterfaceData.h"
@@ -107,6 +108,42 @@ void InterfaceTable::receiveChangeNotification(int category, const cObject *deta
 cModule *InterfaceTable::getHostModule()
 {
     return findContainingNode(this);
+}
+
+bool InterfaceTable::isLocalAddress(const Address& address) const {
+    return findInterfaceByAddress(address) != NULL;
+}
+
+InterfaceEntry *InterfaceTable::findInterfaceByAddress(const Address& address) const {
+    if (!address.isUnspecified()) {
+        for (int i = 0; i < (int)idToInterface.size(); i++) {
+            InterfaceEntry *ie = idToInterface[i];
+            if (ie) {
+                switch (address.getType()) {
+                    case Address::IPv4:
+#ifdef WITH_IPv4
+                        if (ie->ipv4Data() && ie->ipv4Data()->getIPAddress() == address.toIPv4())
+                            return ie;
+#endif
+                    case Address::IPv6:
+#ifdef WITH_IPv6
+                        if (ie->ipv6Data() && ie->ipv6Data()->hasAddress(address.toIPv6()))
+                            return ie;
+#endif
+                    case Address::MAC:
+                        if (ie->getMacAddress() == address.toMAC())
+                            return ie;
+                    case Address::MODULEPATH:
+                    case Address::MODULEID:
+                        if (ie->getGenericNetworkProtocolData() && ie->getGenericNetworkProtocolData()->getAddress() == address)
+                            return ie;
+                    default:
+                        throw cRuntimeError("Unknown address type");
+                }
+            }
+        }
+        return NULL;
+    }
 }
 
 int InterfaceTable::getNumInterfaces()
