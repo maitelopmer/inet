@@ -24,6 +24,7 @@
 #include <string>
 
 #include "INETDefs.h"
+#include "uint128.h"
 
 class InterfaceToken;
 
@@ -95,6 +96,19 @@ class INET_API IPv6Address
         IPv6Address()  {d[0] = d[1] = d[2] = d[3] = 0;}
 
         /**
+         * Constructs an IPv6 address from a 128-bit integer.
+         */
+        IPv6Address(Uint128 address) {
+            uint64 hi = address.getHi();
+            uint64 lo = address.getLo();
+            uint32 mask = 0xFFFFFFFF;
+            d[0] = (hi & mask) >> 32;
+            d[1] = hi & mask;
+            d[2] = (lo & mask) >> 32;
+            d[3] = lo & mask;
+        }
+
+        /**
          * Constructs an IPv6 address from four 32-bit integers. The most significant
          * word should be passed in the first argument.
          */
@@ -161,6 +175,11 @@ class INET_API IPv6Address
          * notation.
          */
         std::string str() const;
+
+        /**
+         * Returns the address as an int.
+         */
+        Uint128 getInt() const {return Uint128(d[0], d[1], d[2], d[3]);}
 
         /**
          * Sets the IPv6 address from four 32-bit integers. The most significant
