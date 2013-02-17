@@ -35,7 +35,8 @@
  * http://www.eecs.harvard.edu/~htk/publication/2000-mobi-karp-kung.pdf
  */
 // TODO: optimize internal data structures for performance to use less lookups and be more prepared for routing a packet
-class INET_API GPSR : public cSimpleModule, public INotifiable, public INetfilter::IHook {
+class INET_API GPSR : public cSimpleModule, public INotifiable, public INetfilter::IHook
+{
     private:
         // context parameters
         const char * routingTableModule; // TODO: delete when necessary functions are moved to interface table
