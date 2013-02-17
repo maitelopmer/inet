@@ -24,18 +24,21 @@
 
 #define RESERVED_IPV6_ADDRESS_RANGE 0x8000
 
-uint64 Address::get(AddressType type) const {
+uint64 Address::get(AddressType type) const
+{
     if (getType() == type)
         return raw.getLo();
     else
         throw cRuntimeError("Address is not of the given type");
 }
 
-void Address::set(AddressType type, uint64 lo) {
+void Address::set(AddressType type, uint64 lo)
+{
     raw = Uint128(lo, ((uint64)RESERVED_IPV6_ADDRESS_RANGE << 48) + (uint64)type);
 }
 
-Address::AddressType Address::getType() const {
+Address::AddressType Address::getType() const
+{
     uint64 hi = raw.getHi();
     if (hi >> 48 == RESERVED_IPV6_ADDRESS_RANGE)
         return (AddressType)(hi & 0xFF);
@@ -43,7 +46,8 @@ Address::AddressType Address::getType() const {
         return Address::IPv6;
 }
 
-IAddressPolicy * Address::getAddressPolicy() const {
+IAddressPolicy * Address::getAddressPolicy() const
+{
     switch (getType()) {
         case Address::NONE:
             throw cRuntimeError("Address contains no value");
@@ -62,7 +66,8 @@ IAddressPolicy * Address::getAddressPolicy() const {
     }
 }
 
-std::string Address::str() const {
+std::string Address::str() const
+{
     switch (getType()) {
         case Address::NONE:
             return "<none>";
