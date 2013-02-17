@@ -65,6 +65,7 @@ class INET_API IPv4 : public QueueBase, public INetfilter
     IInterfaceTable *ift;
     IARPCache *arp;
     ICMPAccess icmpAccess;
+    cGate *arpDgramOutGate;
     cGate *arpInGate;
     cGate *arpOutGate;
     int transportInGateBaseId;
