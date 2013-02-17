@@ -184,29 +184,29 @@ void RIPRouting::receiveChangeNotification(int category, const cObject *details)
         case NF_INTERFACE_CREATED:
             // use RIP by default on multicast interfaces
             // TODO configure RIP interfaces and their metrics
-            ie = check_and_cast<InterfaceEntry*>(details);
+            ie = const_cast<InterfaceEntry*>(check_and_cast<const InterfaceEntry*>(details));
             if (ie->isMulticast())
                 addInterface(ie, 1);
             break;
         case NF_INTERFACE_DELETED:
             // delete interfaces and routes referencing the deleted interface
-            ie = check_and_cast<InterfaceEntry*>(details);
+            ie = const_cast<InterfaceEntry*>(check_and_cast<const InterfaceEntry*>(details));
             deleteInterface(ie);
             break;
         case NF_INTERFACE_STATE_CHANGED:
             // if the interface is down, invalidate routes via that interface
-            ie = check_and_cast<InterfaceEntry*>(details);
+            ie = const_cast<InterfaceEntry*>(check_and_cast<const InterfaceEntry*>(details));
             if (ie->isDown())
                 invalidateRoutes(ie);
             break;
         case NF_ROUTE_DELETED:
             // remove references to the deleted route and invalidate the RIP route
-            route = check_and_cast<IRoute*>(details);
+            route = const_cast<IRoute*>(check_and_cast<const IRoute*>(details));
             deleteRoute(route);
             break;
         case NF_ROUTE_ADDED:
             // add or update the RIP route
-            route = check_and_cast<IRoute*>(details);
+            route = const_cast<IRoute*>(check_and_cast<const IRoute*>(details));
             if (isLoopbackInterfaceRoute(route))
                 /*ignore*/;
             else if (isLocalInterfaceRoute(route))
