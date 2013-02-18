@@ -28,7 +28,11 @@
 class IInterfaceTable;
 
 /**
- * TODO
+ * TODO GlobalMACAddressCache
+ *
+ * - translates L3 address to L2 addresses
+ * - uses global mapping (or table, or algorithm)
+ * - not a protocol -- doesn't communicate
  */
 class INET_API GlobalARP : public cSimpleModule
 {

@@ -76,6 +76,7 @@ class INET_API IPv4 : public QueueBase, public INetfilter
     int defaultMCTimeToLive;
     simtime_t fragmentTimeoutTime;
     bool forceBroadcast;
+    bool useProxyARP;
 
     // working vars
     long curFragmentId; // counter, used to assign unique fragmentIds to datagrams

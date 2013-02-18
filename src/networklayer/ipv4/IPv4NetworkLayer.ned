@@ -47,6 +47,7 @@ module IPv4NetworkLayer like INetworkLayer
     submodules:
         ip: IPv4 {
             parameters:
+                useProxyARP = proxyARP;
                 @display("p=85,95;q=queue");
             gates:
                 queueIn[sizeof(ifIn)];
@@ -54,7 +55,7 @@ module IPv4NetworkLayer like INetworkLayer
         }
         arp: ARP {
             parameters:
-                proxyARP = proxyARP;
+                respondToProxyARP = proxyARP;
                 @display("p=165,120;q=pendingQueue;is=s");
         }
         icmp: ICMP {
