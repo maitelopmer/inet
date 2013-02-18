@@ -96,15 +96,13 @@ class INET_API IPv6Address
         IPv6Address()  {d[0] = d[1] = d[2] = d[3] = 0;}
 
         /**
-         * Constructs an IPv6 address from a 128-bit integer.
+         * Constructs an IPv6 address from two 64-bit integers.
          */
-        IPv6Address(Uint128 address) {
-            uint64 hi = address.getHi();
-            uint64 lo = address.getLo();
+        IPv6Address(uint64 hi, uint64 lo) {
             uint32 mask = 0xFFFFFFFF;
-            d[0] = (hi & mask) >> 32;
+            d[0] = (hi >> 32) & mask;
             d[1] = hi & mask;
-            d[2] = (lo & mask) >> 32;
+            d[2] = (lo >> 32) & mask;
             d[3] = lo & mask;
         }
 

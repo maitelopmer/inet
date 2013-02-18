@@ -44,7 +44,8 @@ class INET_API Address
             MODULEID
         };
     private:
-        Uint128 raw;
+        uint64 hi;
+        uint64 lo;
 
     private:
         uint64 get(AddressType type) const;
@@ -60,13 +61,13 @@ class INET_API Address
         Address(const ModulePathAddress& addr) { set(addr); }
 
         void set(const IPv4Address& addr) { set(IPv4, addr.getInt()); }
-        void set(const IPv6Address& addr) { raw = addr.getInt(); }
+        void set(const IPv6Address& addr);
         void set(const MACAddress& addr) { set(MAC, addr.getInt()); }
         void set(const ModuleIdAddress& addr) { set(MODULEID, addr.getId()); }
         void set(const ModulePathAddress& addr) { set(MODULEPATH, addr.getId()); }
 
         IPv4Address toIPv4() const { return getType() == NONE ? IPv4Address() : IPv4Address(get(IPv4)); }
-        IPv6Address toIPv6() const { return IPv6Address(raw); }
+        IPv6Address toIPv6() const { return IPv6Address(hi, lo); }
         MACAddress toMAC() const { return MACAddress(get(MAC)); }
         ModuleIdAddress toModuleId() const { return ModuleIdAddress(get(MODULEID)); }
         ModulePathAddress toModulePath() const { return ModulePathAddress(get(MODULEPATH)); }
