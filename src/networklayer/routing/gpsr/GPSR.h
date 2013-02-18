@@ -35,6 +35,8 @@
  * http://www.eecs.harvard.edu/~htk/publication/2000-mobi-karp-kung.pdf
  */
 // TODO: optimize internal data structures for performance to use less lookups and be more prepared for routing a packet
+// KLUDGE: the GPSR packet is now used to wrap the content of the IP datagram
+// KLUDGE: we should rather add these fields as IP header extension
 class INET_API GPSR : public cSimpleModule, public INotifiable, public INetfilter::IHook
 {
     private:
