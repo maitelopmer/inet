@@ -94,6 +94,7 @@ class INET_API RIPRouting : public cSimpleModule, protected INotifiable
     typedef std::vector<RIPInterfaceEntry> InterfaceVector;
     typedef std::vector<RIPRoute*> RouteVector;
 
+    cModule *host;
     IInterfaceTable *ift;
     IRoutingTable *rt;
     InterfaceVector ripInterfaces;

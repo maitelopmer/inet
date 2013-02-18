@@ -109,6 +109,7 @@ void RIPRouting::initialize(int stage)
 {
     if (stage == 0) {
         usePoisonedSplitHorizon = par("usePoisonedSplitHorizon");
+        host = findContainingNode(this);
         const char *routingTableModule = par("routingTableModule");
         ift = InterfaceTableAccess().get();
         rt = check_and_cast<IRoutingTable *>(findModuleWhereverInNode(routingTableModule, this));
@@ -765,6 +766,5 @@ void RIPRouting::addStaticRoute(IRoute *route)
 }
 
 std::string RIPRouting::getHostName() {
-    // TODO: this is fragile
-    return getParentModule()->getFullName();
+    return host->getFullName();
 }
