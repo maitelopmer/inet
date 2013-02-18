@@ -28,7 +28,7 @@ package inet.networklayer.routing.rip;
 simple RIPRouting
 {
     parameters:
-        string routingTableModule = default("routingTable");
+        string routingTableModule = default("^.routingTable");
         bool usePoisonedSplitHorizon = default(true);
     gates:
         input udpIn @labels(UDPControlInfo/up);

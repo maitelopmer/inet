@@ -61,7 +61,7 @@ IPv6Tunneling::IPv6Tunneling()
 void IPv6Tunneling::initialize()
 {
     ift = InterfaceTableAccess().get();
-    rt = check_and_cast<IPv6RoutingTable *>(findModuleWhereverInNode(par("routingTableModule"), this));
+    rt = check_and_cast<IPv6RoutingTable *>(getModuleByPath(par("routingTableModule")));
 
     vIfIndexTop = INT_MAX; // virtual interface number set to maximum int value
     noOfNonSplitTunnels = 0; // current number of non-split tunnels on this host

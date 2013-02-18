@@ -111,7 +111,7 @@ void RIPRouting::initialize(int stage)
         usePoisonedSplitHorizon = par("usePoisonedSplitHorizon");
         host = findContainingNode(this);
         ift = InterfaceTableAccess().get();
-        rt = check_and_cast<IRoutingTable *>(findModuleWhereverInNode(par("routingTableModule"), this));
+        rt = check_and_cast<IRoutingTable *>(getModuleByPath(par("routingTableModule")));
         updateTimer = new cMessage("RIP-timer");
         triggeredUpdateTimer = new cMessage("RIP-trigger");
         socket.setOutputGate(gate("udpOut"));
