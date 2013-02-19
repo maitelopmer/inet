@@ -241,7 +241,7 @@ void GPSR::processBeacon(GPSRBeacon * beacon)
 
 GPSRPacket * GPSR::createPacket(Address destination, cPacket * content)
 {
-    GPSRPacket * gpsrPacket = new GPSRPacket();
+    GPSRPacket * gpsrPacket = new GPSRPacket(content->getName());
     gpsrPacket->setRoutingMode(GPSR_GREEDY_ROUTING);
     // KLUDGE: implement position registry protocol
     gpsrPacket->setDestinationPosition(getDestinationPosition(destination));
