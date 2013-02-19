@@ -28,7 +28,6 @@ module LDP_ROUTER_BASE
         double helloInterval @unit("s") = default(5s);
         string peers;
         string routerId = default("auto");
-        string routingFile = default("");
         string tcpType = default(firstAvailable("TCP","TCP_lwIP","TCP_NSC","TCP_None"));  // tcp implementation (e.g. ~TCP, ~TCP_lwIP, ~TCP_NSC) or ~TCPSpoof
     gates:
         inout pppg[] @labels(PPPFrame-conn);

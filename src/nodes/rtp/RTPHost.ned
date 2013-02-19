@@ -30,7 +30,6 @@ module RTPHost
         int payloadType;
         // network information
         bool IPForward = default(false);
-        string routingFile = default("");
         @display("i=device/pc2;bgb=323,371");
 
     gates:
@@ -47,7 +46,6 @@ module RTPHost
             parameters:
                 IPForward = IPForward;
                 routerId = "";
-                routingFile = routingFile;
                 @display("p=60,214");
         }
         application: RTPApplication {

@@ -28,7 +28,6 @@ module RSVP_ROUTER_BASE
         @display("i=abstract/router");
         string peers;
         string routerId = default("auto");
-        string routingFile = default("");
     gates:
         inout pppg[] @labels(PPPFrame-conn);
 }
