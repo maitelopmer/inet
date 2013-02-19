@@ -1,17 +1,22 @@
 // the original file was included in the ~UDP sockets example
 
-package inet.transport.rtp;
+package inet.nodes.rtp;
 
-import ned.IdealChannel;
-import inet.transport.udp.UDP;
+import inet.applications.rtpapp.RTPApplication;
+import inet.base.NotificationBoard;
+import inet.linklayer.IWiredNic;
+import inet.networklayer.common.InterfaceTable;
 import inet.networklayer.ipv4.IPv4NetworkLayer;
 import inet.networklayer.ipv4.IPv4RoutingTable;
-import inet.networklayer.common.InterfaceTable;
-import inet.linklayer.IWiredNic;
-import inet.base.NotificationBoard;
-import inet.applications.rtpapp.RTPApplication;
+import inet.transport.rtp.RTCP;
+import inet.transport.rtp.RTP;
+import inet.transport.udp.UDP;
+import ned.IdealChannel;
 
 
+//
+// TODO document!
+//
 module RTPHost
 {
     parameters:
