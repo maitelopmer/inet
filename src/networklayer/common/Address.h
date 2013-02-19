@@ -67,10 +67,10 @@ class INET_API Address
         void set(const ModulePathAddress& addr) { set(MODULEPATH, addr.getId()); }
 
         IPv4Address toIPv4() const { return getType() == NONE ? IPv4Address() : IPv4Address(get(IPv4)); }
-        IPv6Address toIPv6() const { return IPv6Address(hi, lo); }
-        MACAddress toMAC() const { return MACAddress(get(MAC)); }
-        ModuleIdAddress toModuleId() const { return ModuleIdAddress(get(MODULEID)); }
-        ModulePathAddress toModulePath() const { return ModulePathAddress(get(MODULEPATH)); }
+        IPv6Address toIPv6() const { return getType() == NONE ? IPv6Address() : IPv6Address(hi, lo); }
+        MACAddress toMAC() const { return getType() == NONE ? MACAddress() : MACAddress(get(MAC)); }
+        ModuleIdAddress toModuleId() const { return getType() == NONE ? ModuleIdAddress() : ModuleIdAddress(get(MODULEID)); }
+        ModulePathAddress toModulePath() const { return getType() == NONE ? ModulePathAddress() : ModulePathAddress(get(MODULEPATH)); }
 
         std::string str() const;
         AddressType getType() const;
