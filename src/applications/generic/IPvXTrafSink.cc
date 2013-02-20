@@ -39,8 +39,6 @@ void IPvXTrafSink::initialize()
 
     IPSocket ipSocket(gate("ipOut"));
     ipSocket.registerProtocol(protocol);
-    IPSocket ipv6Socket(gate("ipv6Out"));
-    ipv6Socket.registerProtocol(protocol);
 }
 
 void IPvXTrafSink::handleMessage(cMessage *msg)

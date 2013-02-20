@@ -108,8 +108,6 @@ void TCP_lwIP::initialize()
 
     IPSocket ipSocket(gate("ipOut"));
     ipSocket.registerProtocol(IP_PROT_TCP);
-    IPSocket ipv6Socket(gate("ipv6Out"));
-    ipv6Socket.registerProtocol(IP_PROT_TCP);
 
     isAliveM = true;
 }
@@ -467,7 +465,7 @@ void TCP_lwIP::handleMessage(cMessage *msgP)
             error("Unknown self message");
         }
     }
-    else if (msgP->arrivedOn("ipIn") || msgP->arrivedOn("ipv6In"))
+    else if (msgP->arrivedOn("ipIn"))
     {
 
         if (false
@@ -607,8 +605,6 @@ void TCP_lwIP::ip_output(LwipTcpLayer::tcp_pcb *pcb, Address const& srcP,
     tcpEV << this << ": Sending: conn=" << conn << ", data: " << dataP << " of len " << lenP
           << " from " << srcP << " to " << destP << "\n";
 
-    const char* output = "";
-
     if (destP.getType() == Address::IPv4)
     {
         // send over IPv4
@@ -617,8 +613,6 @@ void TCP_lwIP::ip_output(LwipTcpLayer::tcp_pcb *pcb, Address const& srcP,
         controlInfo->setSrcAddr(srcP.toIPv4());
         controlInfo->setDestAddr(destP.toIPv4());
         tcpseg->setControlInfo(controlInfo);
-
-        output = "ipOut";
     }
     else if (destP.getType() == Address::IPv6)
     {
@@ -628,9 +622,6 @@ void TCP_lwIP::ip_output(LwipTcpLayer::tcp_pcb *pcb, Address const& srcP,
         controlInfo->setSrcAddr(srcP.toIPv6());
         controlInfo->setDestAddr(destP.toIPv6());
         tcpseg->setControlInfo(controlInfo);
-
-        output = "ipv6Out";
-        // send over IPv6
     }
     else
         throw cRuntimeError("Unknown address type");
@@ -640,7 +631,7 @@ void TCP_lwIP::ip_output(LwipTcpLayer::tcp_pcb *pcb, Address const& srcP,
         conn->notifyAboutSending(*tcpseg);
     }
 
-    send(tcpseg, output);
+    send(tcpseg, "ipOut");
 }
 
 void TCP_lwIP::processAppCommand(TcpLwipConnection& connP, cMessage *msgP)
