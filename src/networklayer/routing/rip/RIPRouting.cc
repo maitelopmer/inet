@@ -17,7 +17,7 @@
 
 #include <algorithm>
 
-#include "IAddressPolicy.h"
+#include "IAddressType.h"
 #include "InterfaceTableAccess.h"
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
@@ -130,7 +130,7 @@ void RIPRouting::initialize(int stage)
         }
     }
     else if (stage == 4) { // interfaces and static routes are already initialized
-        allRipRoutersGroup = rt->getRouterIdAsGeneric().getAddressPolicy()->getLinkLocalRIPRoutersMulticastAddress();
+        allRipRoutersGroup = rt->getRouterIdAsGeneric().getAddressType()->getLinkLocalRIPRoutersMulticastAddress();
         configureInitialRoutes();
 
         // configure socket

@@ -22,7 +22,7 @@
 
 #include "AddressResolver.h"
 #include "PingPayload_m.h"
-#include "IAddressPolicy.h"
+#include "IAddressType.h"
 
 using std::cout;
 
@@ -141,8 +141,8 @@ void PingApp::scheduleNextPing(cMessage *timer)
 
 void PingApp::sendToICMP(cMessage *msg, const Address& destAddr, const Address& srcAddr, int hopLimit)
 {
-    IAddressPolicy * addressPolicy = destAddr.getAddressPolicy();
-    INetworkProtocolControlInfo * controlInfo = addressPolicy->createNetworkProtocolControlInfo();
+    IAddressType * addressType = destAddr.getAddressType();
+    INetworkProtocolControlInfo * controlInfo = addressType->createNetworkProtocolControlInfo();
     controlInfo->setSourceAddress(srcAddr);
     controlInfo->setDestinationAddress(destAddr);
     controlInfo->setHopLimit(hopLimit);
