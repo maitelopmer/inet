@@ -118,6 +118,12 @@ RIPRouting::~RIPRouting()
     cancelAndDelete(triggeredUpdateTimer);
 }
 
+simsignal_t RIPRouting::sentRequestSignal = SIMSIGNAL_NULL;
+simsignal_t RIPRouting::sentUpdateSignal = SIMSIGNAL_NULL;
+simsignal_t RIPRouting::rcvdResponseSignal = SIMSIGNAL_NULL;
+simsignal_t RIPRouting::badResponseSignal = SIMSIGNAL_NULL;
+simsignal_t RIPRouting::numRoutesSignal = SIMSIGNAL_NULL;
+
 void RIPRouting::initialize(int stage)
 {
     if (stage == 0) {
@@ -135,6 +141,12 @@ void RIPRouting::initialize(int stage)
 
         WATCH_VECTOR(ripInterfaces);
         WATCH_PTRVECTOR(ripRoutes);
+
+        sentRequestSignal = registerSignal("sentRequest");
+        sentUpdateSignal = registerSignal("sentUpdate");
+        rcvdResponseSignal = registerSignal("rcvdResponse");
+        badResponseSignal = registerSignal("badResponse");
+        numRoutesSignal = registerSignal("numRoutes");
     }
     else if (stage == 3) {
         configureInterfaces(par("ripConfig").xmlValue());
@@ -289,6 +301,7 @@ void RIPRouting::sendInitialRequests()
         RIPEntry &entry = packet->getEntry(0);
         entry.addressFamilyId = RIP_AF_NONE;
         entry.metric = RIP_INFINITE_METRIC;
+        emit(sentRequestSignal, packet);
         sendPacket(packet, addressPolicy->getLinkLocalRIPRoutersMulticastAddress(), RIP_UDP_PORT, it->ie);
     }
 }
@@ -444,6 +457,7 @@ void RIPRouting::sendRoutes(const Address &address, int port, const RIPInterface
         // if packet is full, then send it and allocate a new one
         if (k >= MAX_RIP_ENTRIES)
         {
+            emit(sentUpdateSignal, packet);
             sendPacket(packet, address, port, ripInterface.ie);
             packet = new RIPPacket("RIP response");
             packet->setCommand(RIP_RESPONSE);
@@ -456,6 +470,7 @@ void RIPRouting::sendRoutes(const Address &address, int port, const RIPInterface
     if (k > 0)
     {
         packet->setEntryArraySize(k);
+        emit(sentUpdateSignal, packet);
         sendPacket(packet, address, port, ripInterface.ie);
     }
     else
@@ -476,10 +491,13 @@ void RIPRouting::sendRoutes(const Address &address, int port, const RIPInterface
  */
 void RIPRouting::processResponse(RIPPacket *packet)
 {
+    emit(rcvdResponseSignal, packet);
+
     bool isValid = isValidResponse(packet);
     if (!isValid)
     {
         RIP_EV << "dropping invalid response.\n";
+        emit(badResponseSignal, packet);
         delete packet;
         return;
     }
@@ -489,6 +507,7 @@ void RIPRouting::processResponse(RIPPacket *packet)
     if (!incomingIe)
     {
         RIP_EV << "dropping unexpected RIP response.\n";
+        emit(badResponseSignal, packet);
         delete packet;
         return;
     }
@@ -609,7 +628,7 @@ void RIPRouting::addRoute(const Address &dest, int prefixLength, const Interface
     ripRoute->changed = true;
     route->setProtocolData(ripRoute);
     rt->addRoute(route);
-    ripRoutes.push_back(ripRoute);
+    addRoute(ripRoute);
     triggerUpdate();
 }
 
@@ -701,7 +720,6 @@ void RIPRouting::purgeRoute(RIPRoute *ripRoute)
     if (ripRoute->route)
     {
         ripRoute->route->setProtocolData(NULL);
-        // XXX should set isExpired() to true, and let rt->purge() to do the work
         rt->deleteRoute(ripRoute->route);
     }
 
@@ -709,6 +727,8 @@ void RIPRouting::purgeRoute(RIPRoute *ripRoute)
     if (end != ripRoutes.end())
         ripRoutes.erase(end, ripRoutes.end());
     delete ripRoute;
+
+    emit(numRoutesSignal, ripRoutes.size());
 }
 
 void RIPRouting::sendPacket(RIPPacket *packet, const Address &address, int port, const InterfaceEntry *ie)
@@ -744,13 +764,19 @@ void RIPRouting::deleteInterface(const InterfaceEntry *ie)
         else
             it++;
     }
+    bool emitNumRoutesSignal = false;
     for (RouteVector::iterator it = ripRoutes.begin(); it != ripRoutes.end(); )
     {
         if ((*it)->ie == ie)
+        {
             it = ripRoutes.erase(it);
+            emitNumRoutesSignal = true;
+        }
         else
             it++;
     }
+    if (emitNumRoutesSignal)
+        emit(numRoutesSignal, ripRoutes.size());
 }
 
 void RIPRouting::invalidateRoutes(const InterfaceEntry *ie)
@@ -758,6 +784,12 @@ void RIPRouting::invalidateRoutes(const InterfaceEntry *ie)
     for (RouteVector::iterator it = ripRoutes.begin(); it != ripRoutes.end(); ++it)
         if ((*it)->route && (*it)->route->getInterface() == ie)
             invalidateRoute(*it);
+}
+
+void RIPRouting::addRoute(RIPRoute *route)
+{
+    ripRoutes.push_back(route);
+    emit(numRoutesSignal, ripRoutes.size());
 }
 
 void RIPRouting::deleteRoute(const IRoute *route)
@@ -790,17 +822,17 @@ void RIPRouting::addLocalInterfaceRoute(IRoute *route)
     RIPInterfaceEntry *ripIe = findInterfaceEntryById(ie->getInterfaceId());
     RIPRoute *ripRoute = new RIPRoute(route, RIPRoute::RIP_ROUTE_INTERFACE, ripIe ? ripIe->metric : 1);
     ripRoute->ie = ie;
-    ripRoutes.push_back(ripRoute);
+    addRoute(ripRoute);
 }
 
 void RIPRouting::addDefaultRoute(IRoute *route)
 {
-    ripRoutes.push_back(new RIPRoute(route, RIPRoute::RIP_ROUTE_DEFAULT, 1));
+    addRoute(new RIPRoute(route, RIPRoute::RIP_ROUTE_DEFAULT, 1));
 }
 
 void RIPRouting::addStaticRoute(IRoute *route)
 {
-    ripRoutes.push_back(new RIPRoute(route, RIPRoute::RIP_ROUTE_STATIC, 1));
+    addRoute(new RIPRoute(route, RIPRoute::RIP_ROUTE_STATIC, 1));
 }
 
 std::string RIPRouting::getHostName() {
