@@ -26,7 +26,6 @@
 #include "IReceptionModel.h"
 #include "SnrList.h"
 #include "ObstacleControl.h"
-#include "IPowerControl.h"
 #include "INoiseGenerator.h"
 #include "Lifecycle.h"
 #include "NodeStatus.h"
@@ -64,7 +63,7 @@
  * @author Juan-Carlos Maureira
  *
  */
-class INET_API Radio : public ChannelAccess, public IPowerControl, public ILifecycle
+class INET_API Radio : public ChannelAccess, public ILifecycle
 {
   protected:
     typedef std::map<double,double> SensitivityList; // Sensitivity list
@@ -157,10 +156,6 @@ class INET_API Radio : public ChannelAccess, public IPowerControl, public ILifec
 
     virtual void updateDisplayString();
 
-    // Power Control methods
-    virtual void enablingInitialization();
-    virtual void disablingInitialization();
-    //
     double calcDistFreeSpace();
 
   protected:

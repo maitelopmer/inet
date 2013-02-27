@@ -265,16 +265,8 @@ void Radio::handleMessage(cMessage *msg)
 
     if (msg->getArrivalGateId() == upperLayerIn)
     {
-        if (this->isEnabled())
-        {
-            AirFrame *airframe = encapsulatePacket(PK(msg));
-            handleUpperMsg(airframe);
-        }
-        else
-        {
-            EV << "Radio disabled. ignoring frame" << endl;
-            delete msg;
-        }
+        AirFrame *airframe = encapsulatePacket(PK(msg));
+        handleUpperMsg(airframe);
     }
     else if (msg->isSelfMessage())
     {
@@ -282,7 +274,7 @@ void Radio::handleMessage(cMessage *msg)
     }
     else if (processAirFrame(check_and_cast<AirFrame*>(msg)))
     {
-        if (this->isEnabled() && receiverConnected)
+        if (receiverConnected)
         {
         // must be an AirFrame
             AirFrame *airframe = (AirFrame *) msg;
@@ -989,18 +981,6 @@ void Radio::updateDisplayString() {
         updateString = new cMessage("refresh timer");
     if (updateStringInterval>0)
         scheduleAt(simTime()+updateStringInterval, updateString);
-
-
-}
-
-void Radio::enablingInitialization() {
-    this->connectReceiver();
-    this->connectTransceiver();
-}
-
-void Radio::disablingInitialization() {
-    this->disconnectReceiver();
-    this->disconnectTransceiver();
 }
 
 double Radio::calcDistFreeSpace()
