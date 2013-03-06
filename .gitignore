@@ -1,6 +1,8 @@
 # ignore generated files
 *_m.h
 *_m.cc
+*_sm.h
+*_sm.cc
 src/Makefile
 src/Makefile.vc
 /doc/doxy/
