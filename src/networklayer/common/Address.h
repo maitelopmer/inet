@@ -19,7 +19,6 @@
 #define __INET_ADDRESS_H
 
 #include "INETDefs.h"
-#include "uint128.h"
 
 #include "IPv4Address.h"
 #include "IPv6Address.h"

@@ -39,9 +39,9 @@ inline void Address::set(AddressType type, uint64 lo)
 }
 
 inline void Address::set(const IPv6Address& addr) {
-    Uint128 raw = addr.getInt();
-    hi = raw.getHi();
-    lo = raw.getLo();
+    const uint32 *words = addr.words();
+    hi = ((uint64)*(words + 0) << 32) + *(words + 1);
+    lo = ((uint64)*(words + 2) << 32) + *(words + 3);
     if (getType() != IPv6)
         throw cRuntimeError("Cannot set IPv6 address");
 }
