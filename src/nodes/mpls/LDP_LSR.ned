@@ -61,7 +61,6 @@ module LDP_LSR
             parameters:
                 IPForward = true;
                 routerId = routerId;
-                routingFile = routingFile;
                 @display("p=70,240");
         }
         ldp: LDP {
