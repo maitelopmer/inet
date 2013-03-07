@@ -157,6 +157,9 @@ class INET_API ChannelControl : public cSimpleModule, public IChannelControl
 
     /** Enable the reception in the reference module */
     virtual void enableReception(RadioRef r) { r->isActive = true; };
+
+    /** returns speed of signal in meter/sec */
+    virtual double getSignalSpeed() { return SPEED_OF_LIGHT; }
 };
 
 #endif
