@@ -828,28 +828,19 @@ void Radio::setRadioState(RadioState::State newState)
     if (rs.getState() != newState)
     {
         emit(radioStateSignal, newState);
-        if (rs.getState() != newState)
+        if (newState == RadioState::SLEEP)
         {
-            emit(radioStateSignal, newState);
-            if (newState == RadioState::SLEEP)
-            {
-                disconnectTransceiver();
-                disconnectReceiver();
-            }
-            else if (rs.getState() == RadioState::SLEEP)
-            {
-                connectTransceiver();
-                connectReceiver(); // the connection change the state
-                if (rs.getState() == newState)
-                {
-                    rs.setState(newState);
-                    nb->fireChangeNotification(NF_RADIOSTATE_CHANGED, &rs);
-                    return;
-                }
-            }
+            disconnectTransceiver();
+            disconnectReceiver();
+        }
+        else if (rs.getState() == RadioState::SLEEP)
+        {
+            connectTransceiver();
+            connectReceiver(); // the connection change the state
         }
     }
 
+    //FIXME: probably this must be done only when the state really changed (i.e. inside the above IF)
     rs.setState(newState);
     nb->fireChangeNotification(NF_RADIOSTATE_CHANGED, &rs);
 }
