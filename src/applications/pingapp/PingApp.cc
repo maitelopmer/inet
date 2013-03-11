@@ -24,7 +24,8 @@
 #include "PingPayload_m.h"
 #include "IPv4ControlInfo.h"
 #include "IPv6ControlInfo.h"
-
+#include "ModuleAccess.h"
+#include "NodeStatus.h"
 
 using std::cout;
 
@@ -77,16 +78,15 @@ void PingApp::initialize(int stage)
     WATCH(numPongs);
 
     // schedule first ping (use empty destAddr to disable)
-    if (par("destAddr").stringValue()[0])
-    {
-        cMessage *msg = new cMessage("sendPing");
-        scheduleAt(startTime, msg);
-    }
+    timer = new cMessage("sendPing");
+    NodeStatus * nodeStatus = dynamic_cast<NodeStatus *>(findContainingNode(this)->getSubmodule("status"));
+    if ((!nodeStatus || nodeStatus->getStatus() == NodeStatusMap::On) && par("destAddr").stringValue()[0])
+        scheduleAt(startTime, timer);
 }
 
 void PingApp::handleMessage(cMessage *msg)
 {
-    if (msg->isSelfMessage())
+    if (msg == timer)
     {
         // on first call we need to initialize
         if (sendSeqNo == 0)
@@ -102,13 +102,27 @@ void PingApp::handleMessage(cMessage *msg)
         sendPing();
 
         // then schedule next one if needed
-        scheduleNextPing(msg);
+        scheduleNextPing();
     }
     else
     {
         // process ping response
         processPingResponse(check_and_cast<PingPayload *>(msg));
     }
+}
+
+bool PingApp::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    Enter_Method_Silent();
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0)
+            scheduleAt(simTime() + startTime, timer);
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0 && timer)
+            cancelEvent(timer);
+    }
+    return true;
 }
 
 void PingApp::sendPing()
@@ -131,7 +145,7 @@ void PingApp::sendPing()
     sendSeqNo++;
 }
 
-void PingApp::scheduleNextPing(cMessage *timer)
+void PingApp::scheduleNextPing()
 {
     simtime_t nextPing = simTime() + sendIntervalp->doubleValue();
 
