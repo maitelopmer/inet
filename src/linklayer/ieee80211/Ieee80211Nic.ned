@@ -24,6 +24,7 @@ import inet.linklayer.ieee80211.mac.Ieee80211Mac;
 import inet.linklayer.ieee80211.mgmt.IIeee80211Mgmt;
 import inet.linklayer.ieee80211.mgmt.Ieee80211AgentSTA;
 import inet.linklayer.ieee80211.radio.Ieee80211Radio;
+import inet.status.InterfaceStatus;
 
 
 //
@@ -42,6 +43,7 @@ module Ieee80211Nic like IWirelessNic
         double bitrate @unit("bps") = default(opMode == "b" ? 11Mbps : opMode == "p" ? 27Mbps : 54Mbps);
         int numOutputHooks = default(0);
         int numInputHooks = default(0);
+        bool hasStatus = default(false);
         bool _agentNeeded = (mgmtType == "Ieee80211MgmtSTA");   // internal par. do not use, shows if optional agent module is needed
         @display("i=block/ifcard;bgb=259,357");
     gates:
@@ -49,6 +51,9 @@ module Ieee80211Nic like IWirelessNic
         output upperLayerOut; // from upper layers
         input radioIn @labels(AirFrame); // to receive AirFrames
     submodules:
+        status: InterfaceStatus if hasStatus {
+            @display("p=50,50");
+        }
         outputHook[numOutputHooks]: <default("Nop")> like IHook if numOutputHooks>0;
         inputHook[numInputHooks]: <default("Nop")> like IHook if numInputHooks>0;
         // optional agent module (can be either 0 or 1 sized vector)
