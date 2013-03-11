@@ -1,0 +1,30 @@
+%class NodeStatusData
+%header NodeStatus.h
+%start NodeStatusMap::On
+%map NodeStatusMap
+
+%%
+On
+{
+    StartTurningOff
+        TurningOff { }
+}
+
+TurningOff
+{
+	EndTurningOff
+	    Off { }
+}
+
+Off
+{
+    StartTurningOn
+        TurningOn { }
+}
+
+TurningOn
+{
+    EndTurningOn
+        On { }
+}
+%%

@@ -1,0 +1,30 @@
+%class LinkStatusData
+%header LinkStatus.h
+%start LinkStatusMap::PluggedIn
+%map LinkStatusMap
+
+%%
+PluggedIn
+{
+    StartUnplugging
+        Unplugging { }
+}
+
+Unplugging
+{
+	EndUnplugging
+	    Unplugged { }
+}
+
+Unplugged
+{
+    StartPluggingIn
+        PluggingIn { }
+}
+
+PluggingIn
+{
+    EndPluggingIn
+        PluggedIn { }
+}
+%%

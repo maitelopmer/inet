@@ -1,0 +1,30 @@
+%class InterfaceStatusData
+%header InterfaceStatus.h
+%start InterfaceStatusMap::Up
+%map InterfaceStatusMap
+
+%%
+Up
+{
+    StartBringingDown
+        BringingDown { }
+}
+
+BringingDown
+{
+	EndBringingDown
+	    Down { }
+}
+
+Down
+{
+    StartBringingUp
+        BringingUp { }
+}
+
+BringingUp
+{
+    EndBringingUp
+        Up { }
+}
+%%
