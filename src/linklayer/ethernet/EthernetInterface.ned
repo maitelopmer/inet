@@ -22,8 +22,9 @@ package inet.linklayer.ethernet;
 
 import inet.base.IHook;
 import inet.linklayer.IEtherMAC;
-import inet.linklayer.IWiredNic;
 import inet.linklayer.ITrafficConditioner;
+import inet.linklayer.IWiredNic;
+import inet.status.InterfaceStatus;
 
 
 //
@@ -33,6 +34,7 @@ import inet.linklayer.ITrafficConditioner;
 module EthernetInterface like IWiredNic
 {
     parameters:
+        bool hasStatus = default(false);
         bool csmacdSupport = default(false);  // by default CSMA/CD is turned off, so only point-to-point duplex links are supported.
         bool useSNAP = default(false);  // use EtherFrameWithSNAP instead EthernetIIFrame
         string macType = default(csmacdSupport ? "EtherMAC" : "EtherMACFullDuplex"); // ~EtherMAC or ~EtherMACFullDuplex
@@ -47,6 +49,9 @@ module EthernetInterface like IWiredNic
         output upperLayerOut;
         inout phys @labels(EtherFrame);
     submodules:
+        status: InterfaceStatus if hasStatus {
+            @display("p=50,50");
+        }
         outputHook[numOutputHooks]: <default("Nop")> like IHook if numOutputHooks>0 {
             @display("p=80,98");
         }

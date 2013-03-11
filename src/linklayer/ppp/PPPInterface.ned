@@ -19,10 +19,11 @@
 
 package inet.linklayer.ppp;
 
-import inet.linklayer.ITrafficConditioner;
 import inet.base.IHook;
 import inet.linklayer.IOutputQueue;
+import inet.linklayer.ITrafficConditioner;
 import inet.linklayer.IWiredNic;
+import inet.status.InterfaceStatus;
 
 
 //
@@ -33,6 +34,7 @@ module PPPInterface like IWiredNic
 {
     parameters:
         @display("i=block/ifcard;bgb=214,249;bgl=53");
+        bool hasStatus = default(false);
         string queueType = default("DropTailQueue"); // DropTailQueue, a Diffserv queue, or empty for use internal queue
         string ingressTCType = default(""); // a module type implementing ~ITrafficConditioner for optional traffic conditioning of incoming traffic
         string egressTCType = default(""); // a module type implementing ~ITrafficConditioner for optional traffic conditioning of outgoing traffic
@@ -43,6 +45,9 @@ module PPPInterface like IWiredNic
         output upperLayerOut;
         inout phys @labels(PPPFrame);
     submodules:
+        status: InterfaceStatus if hasStatus {
+            @display("p=50,50");
+        }
         outputHook[numOutputHooks]: <default("Nop")> like IHook if numOutputHooks>0 {
             @display("p=42,33");
         }

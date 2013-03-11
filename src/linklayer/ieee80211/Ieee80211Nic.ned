@@ -38,12 +38,12 @@ import inet.status.InterfaceStatus;
 module Ieee80211Nic like IWirelessNic
 {
     parameters:
+        bool hasStatus = default(false);
         string mgmtType = default("Ieee80211MgmtSTA"); // name of the management module type (implements IIeee80211Mgmt)
         string opMode @enum("b","g","a","p") = default("g");
         double bitrate @unit("bps") = default(opMode == "b" ? 11Mbps : opMode == "p" ? 27Mbps : 54Mbps);
         int numOutputHooks = default(0);
         int numInputHooks = default(0);
-        bool hasStatus = default(false);
         bool _agentNeeded = (mgmtType == "Ieee80211MgmtSTA");   // internal par. do not use, shows if optional agent module is needed
         @display("i=block/ifcard;bgb=259,357");
     gates:
