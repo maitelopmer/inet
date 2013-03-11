@@ -28,7 +28,9 @@
 #include "ObstacleControl.h"
 #include "IPowerControl.h"
 #include "INoiseGenerator.h"
-
+#include "Lifecycle.h"
+#include "NodeStatus.h"
+#include "InterfaceStatus.h"
 
 /**
  * Abstract base class for radio modules. Radio modules deal with the
@@ -62,7 +64,7 @@
  * @author Juan-Carlos Maureira
  *
  */
-class INET_API Radio : public ChannelAccess, public IPowerControl
+class INET_API Radio : public ChannelAccess, public IPowerControl, public ILifecycle
 {
   protected:
     typedef std::map<double,double> SensitivityList; // Sensitivity list
@@ -71,6 +73,8 @@ class INET_API Radio : public ChannelAccess, public IPowerControl
   public:
     Radio();
     virtual ~Radio();
+
+    virtual bool initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback);
 
   protected:
     virtual void initialize(int stage);
@@ -138,14 +142,16 @@ class INET_API Radio : public ChannelAccess, public IPowerControl
      *  check if the packet must be processes
      */
     virtual bool processAirFrame(AirFrame *airframe);
+
     /*
      * Routines to connect or disconnect the transmission and reception  of packets
      */
-
-    virtual void disconnectTransceiver() {transceiverConnect = false;}
-    virtual void connectTransceiver() {transceiverConnect = true;}
-    virtual void disconnectReceiver();
+    virtual void ensureConnected();
+    virtual void ensureDisconnected();
+    virtual void connectTransceiver() { transceiverConnected = true; }
+    virtual void disconnectTransceiver() { transceiverConnected = false; }
     virtual void connectReceiver();
+    virtual void disconnectReceiver();
 
     virtual void registerBattery();
 
@@ -162,6 +168,8 @@ class INET_API Radio : public ChannelAccess, public IPowerControl
     static simsignal_t changeLevelNoise;
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 
+    NodeStatus *nodeStatus;
+    InterfaceStatus *interfaceStatus;
     INoiseGenerator *noiseGenerator;
     cMessage *updateString;
     simtime_t updateStringInterval;
@@ -254,8 +262,8 @@ class INET_API Radio : public ChannelAccess, public IPowerControl
     /*
      * this variable is used to disconnect the possibility of sent packets to the ChannelControl
      */
-    bool transceiverConnect;
-    bool receiverConnect;
+    bool transceiverConnected;
+    bool receiverConnected;
 
     // if true draw coverage circles
     bool drawCoverage;

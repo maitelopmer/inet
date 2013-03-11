@@ -26,7 +26,6 @@
 #include "Radio80211aControlInfo_m.h"
 #include "BasicBattery.h"
 
-
 #define MK_TRANSMISSION_OVER  1
 #define MK_RECEPTION_COMPLETE 2
 
@@ -45,8 +44,8 @@ Radio::Radio() : rs(this->getId())
     obstacles = NULL;
     radioModel = NULL;
     receptionModel = NULL;
-    transceiverConnect = true;
-    receiverConnect = true;
+    transceiverConnected = true;
+    receiverConnected = true;
     updateString = NULL;
     noiseGenerator = NULL;
 }
@@ -154,6 +153,11 @@ void Radio::initialize(int stage)
         // subscribe in stage 0
         nb->fireChangeNotification(NF_RADIOSTATE_CHANGED, &rs);
         nb->fireChangeNotification(NF_RADIO_CHANNEL_CHANGED, &rs);
+
+        cModule * node = findContainingNode(this);
+        nodeStatus = dynamic_cast<NodeStatus *>(node->getSubmodule("status"));
+        cModule * interface = getParentModule();
+        interfaceStatus = dynamic_cast<InterfaceStatus *>(interface->getSubmodule("status"));
     }
     else if (stage == 2)
     {
@@ -189,6 +193,26 @@ Radio::~Radio()
         delete it->first;
 }
 
+bool Radio::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0 && InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Up)
+            ensureConnected();
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0)
+            ensureDisconnected();
+    }
+    else if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
+        if (stage == 0 && NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::On)
+            ensureConnected();
+    }
+    else if (dynamic_cast<BringInterfaceDownOperation *>(operation)) {
+        if (stage == 0)
+            ensureDisconnected();
+    }
+    return true;
+}
 
 bool Radio::processAirFrame(AirFrame *airframe)
 {
@@ -212,6 +236,17 @@ bool Radio::processAirFrame(AirFrame *airframe)
  */
 void Radio::handleMessage(cMessage *msg)
 {
+    if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::Off ||
+        InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Down)
+    {
+        if (msg->getArrivalGateId() == upperLayerIn || msg->isSelfMessage())
+            throw cRuntimeError("Radio is turned off");
+        else {
+            EV << "Radio is turned off, dropping packet\n";
+            delete msg;
+            return;
+        }
+    }
     // handle commands
     if (updateString && updateString==msg)
     {
@@ -247,7 +282,7 @@ void Radio::handleMessage(cMessage *msg)
     }
     else if (processAirFrame(check_and_cast<AirFrame*>(msg)))
     {
-        if (this->isEnabled() && receiverConnect)
+        if (this->isEnabled() && receiverConnected)
         {
         // must be an AirFrame
             AirFrame *airframe = (AirFrame *) msg;
@@ -334,7 +369,7 @@ void Radio::sendUp(AirFrame *airframe)
 
 void Radio::sendDown(AirFrame *airframe)
 {
-    if (transceiverConnect)
+    if (transceiverConnected)
         sendToChannel(airframe);
     else
         delete airframe;
@@ -1003,9 +1038,25 @@ void Radio::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj
     }
 }
 
+void Radio::ensureConnected()
+{
+    if (!receiverConnected)
+        connectReceiver();
+    if (!transceiverConnected)
+        connectTransceiver();
+}
+
+void Radio::ensureDisconnected()
+{
+    if (receiverConnected)
+        disconnectReceiver();
+    if (transceiverConnected)
+        disconnectTransceiver();
+}
+
 void Radio::disconnectReceiver()
 {
-    receiverConnect = false;
+    receiverConnected = false;
     cc->disableReception(this->myRadioRef);
     if (rs.getState() == RadioState::TRANSMIT)
         error("changing channel while transmitting is not allowed");
@@ -1027,7 +1078,7 @@ void Radio::disconnectReceiver()
 
 void Radio::connectReceiver()
 {
-    receiverConnect = true;
+    receiverConnected = true;
     cc->enableReception(this->myRadioRef);
 
     if (rs.getState()!=RadioState::IDLE)
