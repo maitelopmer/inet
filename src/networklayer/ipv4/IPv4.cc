@@ -28,7 +28,8 @@
 #include "IPv4Datagram.h"
 #include "IPv4InterfaceData.h"
 #include "IRoutingTable.h"
-
+#include "Ieee802Ctrl_m.h"
+#include "NodeStatus.h"
 
 Define_Module(IPv4);
 
@@ -48,6 +49,7 @@ void IPv4::initialize()
     forceBroadcast = par("forceBroadcast");
     mapping.parseProtocolMapping(par("protocolMapping"));
 
+    isUp = true;
     curFragmentId = 0;
     lastCheckTime = 0;
     fragbuf.init(icmpAccess.get());
@@ -100,6 +102,11 @@ void IPv4::updateDisplayString()
 
 void IPv4::endService(cPacket *msg)
 {
+    if (!isUp) {
+        EV << "IPv4 is down -- discarding message\n";
+        delete msg;
+        return;
+    }
     if (msg->getArrivalGate()->isName("transportIn"))
     {
         handleMessageFromHL( msg );
@@ -831,3 +838,16 @@ void IPv4::sendToManet(cPacket *packet)
 }
 #endif
 
+bool IPv4::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    Enter_Method_Silent();
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0)
+            isUp = true;
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0)
+            isUp = false;
+    }
+    return true;
+}
