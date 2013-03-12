@@ -48,6 +48,7 @@ InterfaceEntry::InterfaceEntry(cModule* ifmod)
 {
     ownerp = NULL;
     interfaceModule = ifmod;
+    interfaceStatusData = ifmod ? dynamic_cast<InterfaceStatus *>(ifmod->getParentModule()->getSubmodule("status")) : NULL;
 
     nwLayerGateIndex = -1;
     nodeOutputGateId = -1;
@@ -55,7 +56,7 @@ InterfaceEntry::InterfaceEntry(cModule* ifmod)
 
     mtu = 0;
 
-    down = false;
+    carrier = true;
     broadcast = false;
     multicast = false;
     pointToPoint = false;
@@ -78,7 +79,7 @@ std::string InterfaceEntry::info() const
     else
         out << "  on:nwLayer.ifOut[" << getNetworkLayerGateIndex() << "]";
     out << "  MTU:" << getMTU();
-    if (isDown()) out << " DOWN";
+    if (!isUp()) out << " DOWN";
     if (isBroadcast()) out << " BROADCAST";
     if (isMulticast()) out << " MULTICAST";
     if (isPointToPoint()) out << " POINTTOPOINT";
@@ -109,7 +110,7 @@ std::string InterfaceEntry::detailedInfo() const
     else
         out << "  on:nwLayer.ifOut[" << getNetworkLayerGateIndex() << "]";
     out << "MTU: " << getMTU() << " \t";
-    if (isDown()) out << "DOWN ";
+    if (!isUp()) out << "DOWN ";
     if (isBroadcast()) out << "BROADCAST ";
     if (isMulticast()) out << "MULTICAST ";
     if (isPointToPoint()) out << "POINTTOPOINT ";
