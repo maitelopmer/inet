@@ -141,6 +141,11 @@ void PPP::initialize(int stage)
             EV << "Requesting first frame from queue module\n";
             queueModule->requestPacket();
         }
+
+        cModule * node = findContainingNode(this);
+        nodeStatus = dynamic_cast<NodeStatus *>(node->getSubmodule("status"));
+        cModule * interface = getParentModule();
+        interfaceStatus = dynamic_cast<InterfaceStatus *>(interface->getSubmodule("status"));
     }
 
     // update display string when addresses have been autoconfigured etc.
@@ -200,6 +205,23 @@ void PPP::receiveSignal(cComponent *src, simsignal_t id, cObject *obj)
         if (datarateChannel == gcobj->par->getOwner() && !strcmp("datarate", gcobj->par->getName()))
             refreshOutGateConnection(true);
     }
+}
+
+bool PPP::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceDownOperation *>(operation)) {
+        // TODO:
+    }
+    return true;
 }
 
 void PPP::refreshOutGateConnection(bool connected)
@@ -307,6 +329,17 @@ void PPP::startTransmitting(cPacket *msg)
 
 void PPP::handleMessage(cMessage *msg)
 {
+    if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::Off ||
+        InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Down)
+    {
+        if (!msg->arrivedOn("phys$i") || msg->isSelfMessage())
+            throw cRuntimeError("Interface is turned off");
+        else {
+            EV << "Interface is turned off, dropping packet\n";
+            delete msg;
+            return;
+        }
+    }
     if (msg==endTransmissionEvent)
     {
         // Transmission finished, we can start next one.
