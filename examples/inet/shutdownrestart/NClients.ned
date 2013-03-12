@@ -23,6 +23,7 @@ package inet.examples.inet.shutdownrestart;
 
 import inet.base.LifecycleController;
 import inet.networklayer.autorouting.ipv4.IPv4NetworkConfigurator;
+import inet.nodes.ethernet.EtherSwitch;
 import inet.nodes.inet.Router;
 import inet.nodes.inet.StandardHost;
 import inet.util.ThruputMeteringChannel;
@@ -33,6 +34,7 @@ network NClients
 {
     parameters:
         int n;
+        @display("bgb=593,356");
     types:
         channel fiberline extends ThruputMeteringChannel
         {
@@ -48,16 +50,19 @@ network NClients
         }
     submodules:
         r1: Router {
-            @display("p=186,250");
+            @display("p=232,281");
         }
         r2: Router {
-            @display("p=304,220");
+            @display("p=324,219");
         }
         r3: Router {
             @display("p=433,250");
         }
+        s: EtherSwitch {
+            @display("p=153,221");
+        }
         cli[n]: StandardHost {
-            @display("i=device/laptop");
+            @display("i=device/laptop;p=51,269,r");
         }
         srv: StandardHost {
             @display("p=544,194;i=device/server_l");
@@ -68,8 +73,10 @@ network NClients
         scenarioManager: ScenarioManager {
             @display("p=75,101");
             script = xml("<script>\n" +
-                "<at t='2s'><do module='lifecycleController' operation='TurnNodeOffOperation' target='r2'/></at>\n" +
-                "<at t='4s'><do module='lifecycleController' operation='TurnNodeOnOperation' target='r2'/></at>\n" +
+                "<at t='5s'><tell module='lifecycleController' operation='TurnNodeOffOperation' target='r2'/></at>\n" +
+                "<at t='10s'><tell module='lifecycleController' operation='TurnNodeOnOperation' target='r2'/></at>\n" +
+                "<at t='15s'><tell module='lifecycleController' operation='TurnNodeOffOperation' target='cli[0]'/></at>\n" +
+                "<at t='20s'><tell module='lifecycleController' operation='TurnNodeOnOperation' target='cli[0]'/></at>\n" +
                 "</script>");
         }
         lifecycleController: LifecycleController {
@@ -77,8 +84,9 @@ network NClients
         }
     connections:
         for i=0..n-1 {
-            cli[i].pppg++ <--> ethernetline <--> r1.pppg++;
+            cli[i].ethg++ <--> ethernetline <--> s.ethg++;
         }
+        s.ethg++ <--> ethernetline <--> r1.ethg++;
         r1.pppg++ <--> ethernetline <--> r2.pppg++;
         r2.pppg++ <--> ethernetline <--> r3.pppg++;
         r3.pppg++ <--> ethernetline <--> srv.pppg++;
