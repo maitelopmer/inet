@@ -31,7 +31,7 @@
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
 #include "RoutingTableParser.h"
-
+#include "NodeStatus.h"
 
 Define_Module(RoutingTable);
 
@@ -859,3 +859,16 @@ void RoutingTable::updateNetmaskRoutes()
     updateDisplayString();
 }
 
+bool RoutingTable::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0)
+            while (!routes.empty())
+                removeRoute(routes[0]);
+    }
+    else if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0)
+            updateNetmaskRoutes();
+    }
+    return true;
+}

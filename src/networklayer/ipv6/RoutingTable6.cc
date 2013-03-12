@@ -27,6 +27,7 @@
 #include "InterfaceTableAccess.h"
 
 #include "IPv6TunnelingAccess.h"
+#include "NodeStatus.h"
 
 Define_Module(RoutingTable6);
 
@@ -848,3 +849,18 @@ bool RoutingTable6::isOnLinkAddress(const IPv6Address& address)
 }
 #endif /* WITH_xMIPv6 */
 
+
+bool RoutingTable6::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    Enter_Method_Silent();
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0)
+            ; // TODO:
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0)
+            while (!routeList.empty())
+                removeRoute(routeList[0]);
+    }
+    return true;
+}
