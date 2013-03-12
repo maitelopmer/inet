@@ -53,7 +53,6 @@ module StandardHost extends NodeBase
         int numUdpApps = default(0);  // no of UDP apps. Specify the app types in INI file with udpApp[0..1].typename="UDPVideoStreamCli" syntax
         int numSctpApps = default(0); // no of SCTP apps. Specify the app types in INI file with sctpApp[0..1].typename="SCTPServer" syntax
         int numPingApps = default(0);  // no of PING apps. Specify the app types in INI file with pingApp[0..1].typename="PingApp" syntax
-        bool hasStatus = default(false);
         bool hasTcp = default(numTcpApps>0);
         bool hasUdp = default(numUdpApps>0);
         bool hasSctp = default(numSctpApps>0);
@@ -63,9 +62,6 @@ module StandardHost extends NodeBase
         IPForward = default(false);  // disable routing by default
         networkLayer.proxyARP = default(false);
     submodules:
-        status: NodeStatus if hasStatus {
-            @display("p=50,50");
-        }
         tcpApp[numTcpApps]: <> like ITCPApp {
             parameters:
                 @display("p=147,54,row,60");
