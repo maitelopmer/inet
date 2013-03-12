@@ -59,6 +59,18 @@ void EtherMACFullDuplex::initializeFlags()
 
 void EtherMACFullDuplex::handleMessage(cMessage *msg)
 {
+    if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::Off ||
+        InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Down)
+    {
+        if (msg->getArrivalGate() == upperLayerInGate || msg->isSelfMessage())
+            throw cRuntimeError("Interface is turned off");
+        else {
+            EV << "Interface is turned off, dropping packet\n";
+            delete msg;
+            return;
+        }
+    }
+
     if (channelsDiffer)
         readChannelParameters(true);
 

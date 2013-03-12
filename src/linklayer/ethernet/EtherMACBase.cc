@@ -179,6 +179,11 @@ void EtherMACBase::initialize()
 
     lastTxFinishTime = -1.0; // not equals with current simtime.
 
+    cModule * node = findContainingNode(this);
+    nodeStatus = dynamic_cast<NodeStatus *>(node->getSubmodule("status"));
+    cModule * interface = getParentModule();
+    interfaceStatus = dynamic_cast<InterfaceStatus *>(interface->getSubmodule("status"));
+
     // initialize self messages
     endTxMsg = new cMessage("EndTransmission", ENDTRANSMISSION);
     endIFGMsg = new cMessage("EndIFG", ENDIFG);
@@ -358,6 +363,23 @@ void EtherMACBase::receiveSignal(cComponent *src, simsignal_t signalId, cObject 
         if (transmissionChannel == gcobj->par->getOwner())
             refreshConnection();
     }
+}
+
+bool EtherMACBase::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceDownOperation *>(operation)) {
+        // TODO:
+    }
+    return true;
 }
 
 void EtherMACBase::processConnectDisconnect()
