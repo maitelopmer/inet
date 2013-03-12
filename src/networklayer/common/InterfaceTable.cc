@@ -25,6 +25,7 @@
 
 #include "InterfaceTable.h"
 #include "NotifierConsts.h"
+#include "NodeStatus.h"
 
 #ifdef WITH_IPv4
 #include "IPv4InterfaceData.h"
@@ -368,3 +369,22 @@ InterfaceEntry *InterfaceTable::getFirstMulticastInterface()
     return NULL;
 }
 
+bool InterfaceTable::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    Enter_Method_Silent();
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == 0)
+            registerLoopbackInterface();
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == 0) {
+            int n = idToInterface.size();
+            for (int i=0; i<n; i++) {
+                InterfaceEntry *ie = idToInterface[i];
+                if (ie)
+                    deleteInterface(ie);
+            }
+        }
+    }
+    return true;
+}
