@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012 Andras Varga
+// Copyright (C) 2013 Opensim Ltd.
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public License
@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
+//
+// Author: Levente Meszaros (levy@omnetpp.org)
 //
 
 #ifndef __INET_NODESTATUS_H_
