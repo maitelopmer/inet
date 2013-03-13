@@ -839,7 +839,7 @@ void RoutingTable::updateNetmaskRoutes()
     for (int i=0; i<ift->getNumInterfaces(); i++)
     {
         InterfaceEntry *ie = ift->getInterface(i);
-        if (ie->ipv4Data()->getNetmask()!=IPv4Address::ALLONES_ADDRESS)
+        if (ie->ipv4Data() && ie->ipv4Data()->getNetmask()!=IPv4Address::ALLONES_ADDRESS)
         {
             IPv4Route *route = new IPv4Route();
             route->setSource(IPv4Route::IFACENETMASK);
