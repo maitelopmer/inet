@@ -22,6 +22,7 @@ Define_Module(TestMobility)
 
 bool TestMobility::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TestTurnNodeOnOperation *>(operation)) {
         if (stage == 0) {
             scheduleAt(simTime() + 9, &startMoving);

@@ -22,6 +22,7 @@ Define_Module(TestRadio)
 
 bool TestRadio::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TestTurnNodeOnOperation *>(operation)) {
         if (stage == 0) {
             scheduleAt(simTime() + 1, &turnOnTransmitter);

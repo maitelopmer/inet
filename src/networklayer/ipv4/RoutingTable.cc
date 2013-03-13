@@ -861,6 +861,7 @@ void RoutingTable::updateNetmaskRoutes()
 
 bool RoutingTable::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
         if (stage == 0)
             while (!routes.empty())

@@ -195,6 +195,7 @@ Radio::~Radio()
 
 bool Radio::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
         if (stage == 0 && InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Up)
             ensureConnected();

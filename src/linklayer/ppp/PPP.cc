@@ -209,6 +209,7 @@ void PPP::receiveSignal(cComponent *src, simsignal_t id, cObject *obj)
 
 bool PPP::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
         // TODO:
     }

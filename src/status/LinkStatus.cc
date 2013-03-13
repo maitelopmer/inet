@@ -117,6 +117,7 @@ void LinkStatus::signalStatus()
 
 bool LinkStatus::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<PlugInLinkOperation *>(operation)) {
         if (stage == 0) {
             StartPluggingIn();

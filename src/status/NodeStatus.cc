@@ -116,6 +116,7 @@ void NodeStatus::updateDisplayString(const char * icon)
 
 bool NodeStatus::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
         if (stage == 0) {
             StartTurningOn();

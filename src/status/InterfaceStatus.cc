@@ -115,6 +115,7 @@ void InterfaceStatus::signalStatus()
 
 bool InterfaceStatus::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
+    Enter_Method_Silent();
     if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
         if (stage == 0) {
             StartBringingUp();
