@@ -23,7 +23,7 @@
 
 Register_Class(TurnNodeOnOperation);
 Register_Class(TurnNodeOffOperation);
-Define_Module(NodeStatus)
+Define_Module(NodeStatus);
 
 simsignal_t NodeStatus::nodeStatusChangedSignal = SIMSIGNAL_NULL;
 

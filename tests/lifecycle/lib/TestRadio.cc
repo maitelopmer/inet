@@ -18,7 +18,7 @@
 #include "TestRadio.h"
 #include "TestOperation.h"
 
-Define_Module(TestRadio)
+Define_Module(TestRadio);
 
 bool TestRadio::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {

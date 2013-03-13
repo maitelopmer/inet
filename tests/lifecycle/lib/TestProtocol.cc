@@ -18,7 +18,7 @@
 #include "TestProtocol.h"
 #include "TestOperation.h"
 
-Define_Module(TestProtocol)
+Define_Module(TestProtocol);
 
 bool TestProtocol::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {

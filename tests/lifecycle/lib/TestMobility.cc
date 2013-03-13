@@ -18,7 +18,7 @@
 #include "TestMobility.h"
 #include "TestOperation.h"
 
-Define_Module(TestMobility)
+Define_Module(TestMobility);
 
 bool TestMobility::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {

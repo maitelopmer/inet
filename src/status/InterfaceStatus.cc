@@ -22,7 +22,7 @@
 
 Register_Class(BringInterfaceUpOperation);
 Register_Class(BringInterfaceDownOperation);
-Define_Module(InterfaceStatus)
+Define_Module(InterfaceStatus);
 
 simsignal_t InterfaceStatus::interfaceStatusChangedSignal = SIMSIGNAL_NULL;
 
