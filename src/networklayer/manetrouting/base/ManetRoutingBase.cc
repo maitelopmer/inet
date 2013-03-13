@@ -318,7 +318,7 @@ bool ManetRoutingBase::isLocalAddress(const ManetAddress& dest) const
 {
     if (!isRegistered)
         opp_error("Manet routing protocol is not register");
-    if (!mac_layer_)
+    if (dest.getType() == ManetAddress::IPv4_ADDRESS)
         return inet_rt->isLocalAddress(dest.getIPv4());
     InterfaceEntry *ie;
     for (int i = 0; i < inet_ift->getNumInterfaces(); i++)
@@ -334,7 +334,7 @@ bool ManetRoutingBase::isMulticastAddress(const ManetAddress& dest) const
 {
     if (!isRegistered)
         opp_error("Manet routing protocol is not register");
-    if (mac_layer_)
+    if (dest.getType() == ManetAddress::MAC_ADDRESS)
         return dest.getMAC() == MACAddress::BROADCAST_ADDRESS;
     else
         return dest.getIPv4() == IPv4Address::ALLONES_ADDRESS;
@@ -564,7 +564,6 @@ void ManetRoutingBase::omnet_chg_rte(const ManetAddress &dst, const ManetAddress
         opp_error("Manet routing protocol is not register");
 
     /* Add route to kernel routing table ... */
-    IPv4Address desAddress(dst.getIPv4());
     if (!createInternalStore && routesVector)
     {
         delete routesVector;
@@ -597,6 +596,7 @@ void ManetRoutingBase::omnet_chg_rte(const ManetAddress &dst, const ManetAddress
     if (mac_layer_)
         return;
 
+    IPv4Address desAddress(dst.getIPv4());
     bool found = false;
     IPv4Route *oldentry = NULL;
     for (int i=inet_rt->getNumRoutes(); i>0; --i)
@@ -734,7 +734,6 @@ void ManetRoutingBase::omnet_chg_rte(const ManetAddress &dst, const ManetAddress
         opp_error("Manet routing protocol is not register");
 
     /* Add route to kernel routing table ... */
-    IPv4Address desAddress(dst.getIPv4());
     if (!createInternalStore && routesVector)
     {
          delete routesVector;
@@ -752,6 +751,7 @@ void ManetRoutingBase::omnet_chg_rte(const ManetAddress &dst, const ManetAddress
     }
     if (mac_layer_)
         return;
+    IPv4Address desAddress(dst.getIPv4());
     bool found = false;
     IPv4Route *oldentry = NULL;
     for (int i=inet_rt->getNumRoutes(); i>0; --i)
@@ -890,10 +890,10 @@ ManetAddress ManetRoutingBase::omnet_exist_rte(ManetAddress dst)
         opp_error("Manet routing protocol is not register");
 
     /* Add route to kernel routing table ... */
-    IPv4Address desAddress(dst.getIPv4());
-    const IPv4Route *e = NULL;
     if (mac_layer_)
         return ManetAddress::ZERO;
+    const IPv4Route *e = NULL;
+    IPv4Address desAddress(dst.getIPv4());
     for (int i=inet_rt->getNumRoutes(); i>0; --i)
     {
         e = inet_rt->getRoute(i-1);
@@ -911,9 +911,9 @@ void ManetRoutingBase::omnet_clean_rte()
     if (!isRegistered)
         opp_error("Manet routing protocol is not register");
 
-    IPv4Route *entry;
     if (mac_layer_)
         return;
+    IPv4Route *entry;
     // clean the route table wlan interface entry
     for (int i=inet_rt->getNumRoutes()-1; i>=0; i--)
     {
@@ -1053,12 +1053,12 @@ int ManetRoutingBase::getWlanInterfaceIndexByAddress(ManetAddress add)
 
     for (unsigned int i=0; i<interfaceVector->size(); i++)
     {
-        if (mac_layer_)
+        if (add.getType() == ManetAddress::MAC_ADDRESS)
         {
             if ((*interfaceVector)[i].interfacePtr->getMacAddress() == add.getMAC())
                 return (*interfaceVector)[i].index;
         }
-        else
+        else if (add.getType() == ManetAddress::IPv4_ADDRESS)
         {
             if ((*interfaceVector)[i].interfacePtr->ipv4Data()->getIPAddress() == add.getIPv4())
                 return (*interfaceVector)[i].index;
@@ -1080,12 +1080,12 @@ InterfaceEntry *ManetRoutingBase::getInterfaceWlanByAddress(ManetAddress add) co
 
     for (unsigned int i=0; i<interfaceVector->size(); i++)
     {
-        if (mac_layer_)
+        if (add.getType() == ManetAddress::MAC_ADDRESS)
         {
             if ((*interfaceVector)[i].interfacePtr->getMacAddress() == add.getMAC())
                 return (*interfaceVector)[i].interfacePtr;
         }
-        else
+        else if (add.getType() == ManetAddress::IPv4_ADDRESS)
         {
             if ((*interfaceVector)[i].interfacePtr->ipv4Data()->getIPAddress() == add.getIPv4())
                 return (*interfaceVector)[i].interfacePtr;
@@ -1183,7 +1183,6 @@ bool ManetRoutingBase::setRoute(const ManetAddress & destination, const ManetAdd
         opp_error("Manet routing protocol is not register");
 
     /* Add route to kernel routing table ... */
-    IPv4Address desAddress(destination.getIPv4());
     bool del_entry = (nextHop.isUnspecified());
 
     if (!createInternalStore && routesVector)
@@ -1207,6 +1206,7 @@ bool ManetRoutingBase::setRoute(const ManetAddress & destination, const ManetAdd
     if (mac_layer_)
         return true;
 
+    IPv4Address desAddress(destination.getIPv4());
     if (ifaceIndex>=getNumInterfaces())
         return false;
 
@@ -1625,7 +1625,7 @@ void ManetRoutingBase::getApListIp(const IPv4Address &dest,std::vector<IPv4Addre
 
 void ManetRoutingBase::getListRelatedAp(const ManetAddress & add, std::vector<ManetAddress>& list)
 {
-    if (mac_layer_)
+    if (add.getType() == ManetAddress::MAC_ADDRESS)
     {
         std::vector<MACAddress> listAux;
         getApList(add.getMAC(), listAux);
@@ -1635,7 +1635,7 @@ void ManetRoutingBase::getListRelatedAp(const ManetAddress & add, std::vector<Ma
             list.push_back(ManetAddress(listAux[i]));
         }
     }
-    else
+    else if (add.getType() == ManetAddress::IPv4_ADDRESS)
     {
         std::vector<IPv4Address> listAux;
         getApListIp(add.getIPv4(), listAux);
