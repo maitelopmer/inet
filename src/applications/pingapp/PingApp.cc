@@ -115,12 +115,13 @@ bool PingApp::initiateStateChange(LifecycleOperation *operation, int stage, IDon
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOnOperation::STAGE_APPLICATION_LAYER)
             scheduleAt(simTime() + startTime, timer);
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0 && timer)
-            cancelEvent(timer);
+        if (stage == TurnNodeOffOperation::STAGE_APPLICATION_LAYER)
+            if (timer)
+                cancelEvent(timer);
     }
     return true;
 }

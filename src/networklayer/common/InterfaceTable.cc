@@ -376,11 +376,11 @@ bool InterfaceTable::initiateStateChange(LifecycleOperation *operation, int stag
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOnOperation::STAGE_LINK_LAYER)
             registerLoopbackInterface();
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0) {
+        if (stage == TurnNodeOffOperation::STAGE_LINK_LAYER) {
             int n = idToInterface.size();
             for (int i=0; i<n; i++) {
                 InterfaceEntry *ie = idToInterface[i];

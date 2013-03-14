@@ -197,19 +197,21 @@ bool Radio::initiateStateChange(LifecycleOperation *operation, int stage, IDoneC
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0 && InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Up)
-            ensureConnected();
+        if (stage == TurnNodeOnOperation::STAGE_PHYSICAL_LAYER)
+            if (InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Up)
+                ensureConnected();
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOffOperation::STAGE_PHYSICAL_LAYER)
             ensureDisconnected();
     }
     else if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
-        if (stage == 0 && NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::On)
-            ensureConnected();
+        if (stage == BringInterfaceUpOperation::STAGE_LOCAL)
+            if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::On)
+                ensureConnected();
     }
     else if (dynamic_cast<BringInterfaceDownOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == BringInterfaceDownOperation::STAGE_LOCAL)
             ensureDisconnected();
     }
     return true;

@@ -28,12 +28,33 @@
 
 class INET_API TurnNodeOnOperation : public UpOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_PHYSICAL_LAYER,
+      STAGE_LINK_LAYER,
+      STAGE_NETWORK_LAYER,
+      STAGE_TRANSPORT_LAYER,
+      STAGE_APPLICATION_LAYER,
+      STAGE_COUNT
+    };
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API TurnNodeOffOperation : public DownOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_APPLICATION_LAYER,
+      STAGE_TRANSPORT_LAYER,
+      STAGE_NETWORK_LAYER,
+      STAGE_LINK_LAYER,
+      STAGE_PHYSICAL_LAYER,
+      STAGE_COUNT
+    };
+
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API NodeStatusData : public NodeStatusContext, public IStatus

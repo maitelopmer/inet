@@ -842,11 +842,11 @@ bool IPv4::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCa
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOnOperation::STAGE_NETWORK_LAYER)
             isUp = true;
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOffOperation::STAGE_NETWORK_LAYER)
             isUp = false;
     }
     return true;

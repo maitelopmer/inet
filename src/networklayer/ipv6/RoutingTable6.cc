@@ -854,11 +854,11 @@ bool RoutingTable6::initiateStateChange(LifecycleOperation *operation, int stage
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOnOperation::STAGE_NETWORK_LAYER)
             ; // TODO:
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0)
+        if (stage == TurnNodeOffOperation::STAGE_NETWORK_LAYER)
             while (!routeList.empty())
                 removeRoute(routeList[0]);
     }

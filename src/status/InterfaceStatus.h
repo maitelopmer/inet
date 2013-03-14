@@ -28,12 +28,24 @@
 
 class INET_API BringInterfaceUpOperation : public UpOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_COUNT
+    };
+
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API BringInterfaceDownOperation : public DownOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_COUNT
+    };
+
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API InterfaceStatusData : public InterfaceStatusContext, public IStatus

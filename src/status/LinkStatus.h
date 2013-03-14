@@ -28,12 +28,24 @@
 
 class INET_API PlugInLinkOperation : public UpOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_COUNT
+    };
+
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API UnplugLinkOperation : public DownOperation {
   public:
-    virtual int getNumStages() const { return 1; }
+    enum STAGE {
+      STAGE_LOCAL,
+      STAGE_COUNT
+    };
+
+  public:
+    virtual int getNumStages() const { return STAGE_COUNT; }
 };
 
 class INET_API LinkStatusData : public LinkStatusContext, public IStatus
