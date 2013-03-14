@@ -234,6 +234,7 @@ class INET_API IPv4NetworkConfigurator : public cSimpleModule
          * May add default routes and subnet routes if possible and requested.
          */
         virtual void addStaticRoutes(IPv4Topology& topology);
+        virtual void addStaticRoutes(IPv4Topology& topology, Node * sourceNode);
 
         /**
          * Destructively optimizes the given IPv4 routes by merging some of them.
@@ -288,7 +289,6 @@ class INET_API IPv4NetworkConfigurator : public cSimpleModule
         void addOriginalRouteInfos(RoutingTableInfo& routingTableInfo, int begin, int end, const std::vector<RouteInfo *>& originalRouteInfos);
         bool tryToMergeTwoRoutes(RoutingTableInfo& routingTableInfo, int i, int j, RouteInfo *routeInfoI, RouteInfo *routeInfoJ);
         bool tryToMergeAnyTwoRoutes(RoutingTableInfo& routingTableInfo);
-
 };
 
 #endif
