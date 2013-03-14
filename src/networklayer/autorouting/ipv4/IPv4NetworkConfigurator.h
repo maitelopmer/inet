@@ -198,11 +198,15 @@ class INET_API IPv4NetworkConfigurator : public cSimpleModule
         };
 
     protected:
-        // cached parameter values; all other state is local to initialize()
+        // cached parameter values
         bool addSubnetRoutesParameter;
         bool addDefaultRoutesParameter;
         bool optimizeRoutesParameter;
         bool assignDisjunctSubnetAddressesParameter;
+
+    public:
+        virtual void assignAddress(InterfaceEntry *interfaceEntry);
+        virtual void addStaticRoutes(IRoutingTable *routingTable);
 
     protected:
         virtual int numInitStages() const  { return 3; }

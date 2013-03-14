@@ -104,6 +104,33 @@ void IPv4NetworkConfigurator::initialize(int stage)
     }
 }
 
+void IPv4NetworkConfigurator::assignAddress(InterfaceEntry *interfaceEntry)
+{
+    IPv4Topology topology;
+    extractTopology(topology);
+    readAddressConfiguration(par("config").xmlValue(), topology);
+    for (int i = 0; i < topology.getNumNodes(); i++) {
+        Node *node = (Node *)topology.getNode(i);
+        for (int i = 0; i < (int)node->interfaceInfos.size(); i++) {
+            InterfaceInfo *interfaceInfo = node->interfaceInfos.at(i);
+            if (interfaceInfo->interfaceEntry != interfaceEntry)
+                interfaceInfo->configure = false;
+        }
+    }
+    assignAddresses(topology);
+}
+
+void IPv4NetworkConfigurator::addStaticRoutes(IRoutingTable *routingTable)
+{
+    IPv4Topology topology;
+    extractTopology(topology);
+    for (int i = 0; i < topology.getNumNodes(); i++) {
+        Node *node = (Node *)topology.getNode(i);
+        if (node->routingTable == routingTable)
+            addStaticRoutes(topology, node);
+    }
+}
+
 #undef T
 
 void IPv4NetworkConfigurator::extractTopology(IPv4Topology& topology)
