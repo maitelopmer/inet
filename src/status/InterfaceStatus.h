@@ -52,9 +52,10 @@ class INET_API InterfaceStatusData : public InterfaceStatusContext, public IStat
 {
   protected:
     cModule * interface; // the network interface belonging to this status of NULL if there's no such interface
+    cOutVector statusVector;
 
   public:
-    InterfaceStatusData() : InterfaceStatusContext(*this), interface(NULL) { }
+    InterfaceStatusData();
 
     static InterfaceStatusDataState & getStatusWithDefault(InterfaceStatusData * interfaceStatusData, InterfaceStatusDataState & defaultValue = InterfaceStatusMap::Up) {
         return interfaceStatusData ? interfaceStatusData->getStatus() : defaultValue;

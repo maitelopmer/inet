@@ -21,11 +21,18 @@
 #include "ModuleAccess.h"
 #include "LifecycleOperations.h"
 
+Register_Enum(NodeStatus, (On, TurningOff, Off, TurningOn));
 Register_Class(TurnNodeOnOperation);
 Register_Class(TurnNodeOffOperation);
 Define_Module(NodeStatus);
 
 simsignal_t NodeStatus::nodeStatusChangedSignal = SIMSIGNAL_NULL;
+
+NodeStatusData::NodeStatusData() : NodeStatusContext(*this), node(NULL)
+{
+    statusVector.setName("NodeStatus");
+    statusVector.setEnum("NodeStatus");
+}
 
 void NodeStatusData::setStatus(NodeStatusDataState & status)
 {
@@ -64,6 +71,7 @@ void NodeStatusData::setStatusByName(const char * name)
 
 void NodeStatusData::statusChanged()
 {
+    statusVector.record(getStatus().getId());
     updateDisplayString(getStatusIcon());
 }
 

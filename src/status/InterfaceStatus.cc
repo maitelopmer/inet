@@ -20,11 +20,18 @@
 #include "InterfaceStatus.h"
 #include "LifecycleOperations.h"
 
+Register_Enum(InterfaceStatus, (Up, BringingDown, Down, BringingUp));
 Register_Class(BringInterfaceUpOperation);
 Register_Class(BringInterfaceDownOperation);
 Define_Module(InterfaceStatus);
 
 simsignal_t InterfaceStatus::interfaceStatusChangedSignal = SIMSIGNAL_NULL;
+
+InterfaceStatusData::InterfaceStatusData() : InterfaceStatusContext(*this), interface(NULL)
+{
+    statusVector.setName("InterfaceStatus");
+    statusVector.setEnum("InterfaceStatus");
+}
 
 void InterfaceStatusData::setStatus(InterfaceStatusDataState & status)
 {
@@ -63,6 +70,7 @@ void InterfaceStatusData::setStatusByName(const char * name)
 
 void InterfaceStatusData::statusChanged()
 {
+    statusVector.record(getStatus().getId());
     updateDisplayString(getStatusIcon());
 }
 

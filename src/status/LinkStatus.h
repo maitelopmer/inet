@@ -52,9 +52,10 @@ class INET_API LinkStatusData : public LinkStatusContext, public IStatus
 {
   protected:
     cChannel * link;  // the network link belonging to this status of NULL if there's no such link
+    cOutVector statusVector;
 
   public:
-    LinkStatusData() : LinkStatusContext(*this), link(NULL) { }
+    LinkStatusData();
 
     static LinkStatusDataState & getStatusWithDefault(LinkStatusData * linkStatusData, LinkStatusDataState & defaultValue = LinkStatusMap::PluggedIn) {
         return linkStatusData ? linkStatusData->getStatus() : defaultValue;

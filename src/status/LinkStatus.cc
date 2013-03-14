@@ -20,10 +20,17 @@
 #include "LinkStatus.h"
 #include "LifecycleOperations.h"
 
+Register_Enum(LinkStatus, (PluggedIn, Unplugging, Unplugged, PluggingIn));
 Register_Class(PlugInLinkOperation);
 Register_Class(UnplugLinkOperation);
 
 simsignal_t LinkStatus::linkStatusChangedSignal = SIMSIGNAL_NULL;
+
+LinkStatusData::LinkStatusData() : LinkStatusContext(*this), link(NULL)
+{
+    statusVector.setName("LinkStatus");
+    statusVector.setEnum("LinkStatus");
+}
 
 void LinkStatusData::setStatus(LinkStatusDataState & status)
 {
@@ -62,6 +69,7 @@ void LinkStatusData::setStatusByName(const char * name)
 
 void LinkStatusData::statusChanged()
 {
+    statusVector.record(getStatus().getId());
     updateDisplayString(getStatusColor());
 }
 

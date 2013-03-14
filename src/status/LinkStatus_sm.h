@@ -13,6 +13,13 @@
 
 #include <statemap.h>
 
+enum LinkStatusEnum {
+    PluggedIn,
+    Unplugging,
+    Unplugged,
+    PluggingIn
+};
+
 // Forward declarations.
 class LinkStatusMap;
 class LinkStatusMap_PluggedIn;

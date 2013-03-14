@@ -13,6 +13,13 @@
 
 #include <statemap.h>
 
+enum InterfaceStatusEnum {
+    Up,
+    BringingDown,
+    Down,
+    BringingUp
+};
+
 // Forward declarations.
 class InterfaceStatusMap;
 class InterfaceStatusMap_Up;

@@ -13,6 +13,13 @@
 
 #include <statemap.h>
 
+enum NodeStatusEnum {
+    On,
+    TurningOff,
+    Off,
+    TurningOn
+};
+
 // Forward declarations.
 class NodeStatusMap;
 class NodeStatusMap_On;

@@ -61,9 +61,10 @@ class INET_API NodeStatusData : public NodeStatusContext, public IStatus
 {
   protected:
     cModule * node; // the network node belonging to this status of NULL if there's no such node
+    cOutVector statusVector;
 
   public:
-    NodeStatusData() : NodeStatusContext(*this), node(NULL) { }
+    NodeStatusData();
 
     static NodeStatusDataState & getStatusWithDefault(NodeStatusData * nodeStatusData, NodeStatusDataState & defaultValue = NodeStatusMap::On) {
         return nodeStatusData ? nodeStatusData->getStatus() : defaultValue;
