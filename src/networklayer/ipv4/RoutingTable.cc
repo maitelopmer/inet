@@ -28,6 +28,7 @@
 #include "InterfaceTableAccess.h"
 #include "IPv4InterfaceData.h"
 #include "IPv4Route.h"
+#include "IPv4NetworkConfigurator.h"
 #include "NotificationBoard.h"
 #include "NotifierConsts.h"
 #include "RoutingTableParser.h"
@@ -862,14 +863,28 @@ void RoutingTable::updateNetmaskRoutes()
 bool RoutingTable::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
 {
     Enter_Method_Silent();
-    if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
-        if (stage == 0)
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == TurnNodeOnOperation::STAGE_NETWORK_LAYER) {
+            // KLUDGE: TODO: move or what?
+            IPv4NetworkConfigurator *configurator = check_and_cast<IPv4NetworkConfigurator *>(findModuleWherever("configurator", simulation.getSystemModule()));
+            IInterfaceTable *interfaceTable = InterfaceTableAccess().get();
+            for (int i=0; i<interfaceTable->getNumInterfaces(); ++i) {
+                InterfaceEntry *ie = interfaceTable->getInterface(i);
+                configureInterfaceForIPv4(ie);
+                // KLUDGE: TODO: move or what?
+                configurator->assignAddress(ie);
+            }
+            configureLoopbackForIPv4();
+            configureRouterId();
+            // KLUDGE: TODO: move or what?
+            configurator->addStaticRoutes(this);
+            updateNetmaskRoutes();
+        }
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        if (stage == TurnNodeOffOperation::STAGE_NETWORK_LAYER)
             while (!routes.empty())
                 removeRoute(routes[0]);
-    }
-    else if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        if (stage == 0)
-            updateNetmaskRoutes();
     }
     return true;
 }
