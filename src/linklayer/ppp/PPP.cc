@@ -211,7 +211,11 @@ bool PPP::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCal
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        // TODO:
+        if (stage == TurnNodeOnOperation::STAGE_LINK_LAYER) {
+            bool connected = physOutGate->getPathEndGate()->getType() == cGate::INPUT;
+            double datarate = connected ? datarateChannel->getNominalDatarate() : 0;
+            registerInterface(datarate);
+        }
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
         // TODO:

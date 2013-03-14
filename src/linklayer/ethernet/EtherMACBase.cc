@@ -369,7 +369,8 @@ bool EtherMACBase::initiateStateChange(LifecycleOperation *operation, int stage,
 {
     Enter_Method_Silent();
     if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
-        // TODO:
+        if (stage == TurnNodeOnOperation::STAGE_LINK_LAYER)
+            registerInterface();
     }
     else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
         // TODO:
