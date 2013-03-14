@@ -700,6 +700,9 @@ void IPv4NetworkConfigurator::assignAddresses(IPv4Topology& topology)
                     interfaceData->setNetmask(IPv4Address(completeNetmask));
                 }
                 compatibleInterface->address = completeAddress;
+                compatibleInterface->addressSpecifiedBits = 0xFFFFFFFF;
+                compatibleInterface->netmask = completeNetmask;
+                compatibleInterface->netmaskSpecifiedBits = 0xFFFFFFFF;
                 EV_DEBUG << "Selected interface address: " << IPv4Address(completeAddress) << endl;
 
                 // remove configured interface
