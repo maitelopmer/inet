@@ -41,6 +41,10 @@ void WirelessMacBase::initialize(int stage)
 
         // get a pointer to the NotificationBoard module
         nb = NotificationBoardAccess().get();
+        cModule * node = findContainingNode(this);
+        nodeStatus = dynamic_cast<NodeStatus *>(node->getSubmodule("status"));
+        cModule * interface = getParentModule();
+        interfaceStatus = dynamic_cast<InterfaceStatus *>(interface->getSubmodule("status"));
 
         packetSentToLowerSignal = registerSignal("packetSentToLower");
         packetReceivedFromLowerSignal = registerSignal("packetReceivedFromLower");
@@ -49,9 +53,38 @@ void WirelessMacBase::initialize(int stage)
     }
 }
 
+bool WirelessMacBase::initiateStateChange(LifecycleOperation *operation, int stage, IDoneCallback *doneCallback)
+{
+    Enter_Method_Silent();
+    if (dynamic_cast<TurnNodeOnOperation *>(operation)) {
+        if (stage == TurnNodeOnOperation::STAGE_LINK_LAYER)
+            ; // TODO: registerInterface();
+    }
+    else if (dynamic_cast<TurnNodeOffOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceUpOperation *>(operation)) {
+        // TODO:
+    }
+    else if (dynamic_cast<BringInterfaceDownOperation *>(operation)) {
+        // TODO:
+    }
+    return true;
+}
 
 void WirelessMacBase::handleMessage(cMessage *msg)
 {
+    if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatusMap::Off ||
+        InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatusMap::Down)
+    {
+        if (!msg->arrivedOn("phys$i") || msg->isSelfMessage())
+            throw cRuntimeError("Interface is turned off");
+        else {
+            EV << "Interface is turned off, dropping packet\n";
+            delete msg;
+            return;
+        }
+    }
     if (msg->isSelfMessage())
         handleSelfMsg(msg);
     else if (!msg->isPacket())
